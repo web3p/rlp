@@ -23,6 +23,10 @@ class BufferTest extends TestCase
 
         $buffer = new Buffer('bcdabcdabcdabcd', 'hex');
         $this->assertEquals('bcdabcdabcdabcd', $buffer->toString('hex'));
+
+        $buffer = new Buffer('我是測試');
+        $this->assertEquals('我是測試', $buffer->toString('utf8'));
+        $this->assertEquals('e68891e698afe6b8ace8a9a6', $buffer->toString('hex'));
     }
 
     /**

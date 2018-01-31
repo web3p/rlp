@@ -104,10 +104,11 @@ class Buffer implements ArrayAccess
     public function toString($encoding='utf8')
     {
         $output = '';
+        $input = $this->data;
 
         switch ($encoding) {
             case 'hex':
-            foreach ($this->data as $data)  {
+            foreach ($input as $data)  {
                 $hex = dechex($data);
 
                 // if ((strlen($hex) % 2) !== 0) {
@@ -117,15 +118,19 @@ class Buffer implements ArrayAccess
             }
             break;
             case 'ascii':
-            foreach ($this->data as $data)  {
+            foreach ($input as $data)  {
                 $output .= chr($data);
             }
             break;
-            // still find way to do this
-            // case 'utf8':
-            // break;
+            case 'utf8':
+            $length = count($input);
+
+            for ($i = 1; $i <= $length; $i += 3) {
+                $output .= chr($input[$i]) . chr($input[$i + 1]) . chr($input[$i + 2]);
+            }
+            break;
             default:
-            $output = implode('', $this->data);
+            $output = implode('', $input);
             break;
         }
         return $output;
@@ -143,10 +148,10 @@ class Buffer implements ArrayAccess
 
         if (is_array($input)) {
             $output = $this->arrayToData($input);
-        } elseif (is_string($input)) {
-            $output = $this->stringToData($input, $this->encoding);
         } elseif (is_numeric($input)) {
             $output = $this->numericToData($input);
+        } elseif (is_string($input)) {
+            $output = $this->stringToData($input, $this->encoding);
         }
         return $output;
     }
@@ -202,9 +207,9 @@ class Buffer implements ArrayAccess
             case 'ascii':
             $output = array_map('ord', str_split($input, 1));
             break;
-            // still find way to do this
-            // case 'utf8':
-            // break;
+            case 'utf8':
+            $output = unpack('C*', $input);
+            break;
             default:
             $output = str_split($input, 1);
             break;
