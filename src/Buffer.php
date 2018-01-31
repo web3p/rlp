@@ -1,0 +1,224 @@
+<?php
+
+/**
+ * This file is part of rlp package.
+ * 
+ * (c) Kuan-Cheng,Lai <alk03073135@gmail.com>
+ * 
+ * @author Peter Lai <alk03073135@gmail.com>
+ * @license MIT
+ */
+
+namespace RLP;
+
+use ArrayAccess;
+
+class Buffer implements ArrayAccess
+{
+    /**
+     * data
+     * 
+     * @var array
+     */
+    protected $data=[];
+
+    /**
+     * encoding
+     * 
+     * @var string
+     */
+    protected $encoding='';
+
+    /**
+     * construct
+     * 
+     * @param mixed $data
+     * @param string $encoding the data encoding
+     * @return void
+     */
+    public function __construct($data, $encoding = 'utf8')
+    {
+        $this->encoding = strtolower($encoding);
+
+        if ($data) {
+            $this->data = $this->decodeToData($data);
+        }
+    }
+
+    /**
+     * offsetSet
+     * 
+     * @param mixed $offset
+     * @param mixed $value
+     * @return void
+     */
+    public function offsetSet($offset, $value)
+    {
+        if (is_null($offset)) {
+            $this->data[] = $value;
+        } else {
+            $this->data[$offset] = $value;
+        }
+    }
+
+    /**
+     * offsetExists
+     * 
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->data[$offset]);
+    }
+
+    /**
+     * offsetUnet
+     * 
+     * @param mixed $offset
+     * @return void
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->data[$offset]);
+    }
+
+    /**
+     * offsetGet
+     * 
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return isset($this->data[$offset]) ? $this->data[$offset] : null;
+    }
+
+    /**
+     * toString
+     * 
+     * @param string $encoding
+     * @return string
+     */
+    public function toString($encoding='utf8')
+    {
+        $output = '';
+
+        switch ($encoding) {
+            case 'hex':
+            foreach ($this->data as $data)  {
+                $hex = dechex($data);
+
+                // if ((strlen($hex) % 2) !== 0) {
+                //     $hex = '0' . $hex;
+                // }
+                $output .= $hex;
+            }
+            break;
+            case 'ascii':
+            foreach ($this->data as $data)  {
+                $output .= chr($data);
+            }
+            break;
+            // still find way to do this
+            // case 'utf8':
+            // break;
+            default:
+            $output = implode('', $this->data);
+            break;
+        }
+        return $output;
+    }
+
+    /**
+     * decodeToData
+     * 
+     * @param mixed $input
+     * @return array
+     */
+    protected function decodeToData($input)
+    {
+        $output = [];
+
+        if (is_array($input)) {
+            $output = $this->arrayToData($input);
+        } elseif (is_string($input)) {
+            $output = $this->stringToData($input, $this->encoding);
+        } elseif (is_numeric($input)) {
+            $output = $this->numericToData($input);
+        }
+        return $output;
+    }
+
+    /**
+     * arrayToData
+     * 
+     * @param array $inputs
+     * @return array
+     */
+    protected function arrayToData($inputs)
+    {
+        $output = [];
+
+        foreach ($inputs as $input) {
+            if (is_array($input)) {
+                $output[] = $this->arrayToData($input);
+            } elseif (is_string($input)) {
+                $output[] = $this->stringToData($input, $this->encoding);
+            } elseif (is_numeric($input)) {
+                $output[] = $this->numericToData($input);
+            }
+        }
+        return $output;
+    }
+
+    /**
+     * stringToData
+     * 
+     * @param string $input
+     * @param string $encoding
+     * @return array
+     */
+    protected function stringToData($input, $encoding)
+    {
+        $output = [];
+
+        switch ($encoding) {
+            case 'hex':
+            if (strlen($input) % 2 !== 0) {
+                $input = '0' . $input;
+            }
+            // $splited = str_split($input, 2);
+
+            // foreach ($splited as $data)  {
+            //     $output[] = hexdec($data);
+            // }
+            $output = array_map('hexdec', str_split($input, 2));
+
+            break;
+            case 'ascii':
+            $output = array_map('ord', str_split($input, 1));
+            break;
+            // still find way to do this
+            // case 'utf8':
+            // break;
+            default:
+            $output = str_split($input, 1);
+            break;
+        }
+        return $output;
+    }
+
+    /**
+     * numericToData
+     * 
+     * @param mixed $intput
+     * @return array
+     */
+    protected function numericToData($intput)
+    {
+        $output = (int) $intput;
+
+        return [$output];
+    }
+}
