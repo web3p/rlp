@@ -147,6 +147,28 @@ class Buffer implements ArrayAccess
     }
 
     /**
+     * concat
+     * 
+     * @param mixed $buffer
+     * @return \RLP\Buffer
+     */
+    public function concat($buffer)
+    {
+        if (is_array($buffer)) {
+            $buffer = new Buffer($buffer);
+        }
+        if ($buffer instanceof Buffer) {
+            $length = $buffer->length();
+
+            for ($i = 0; $i < $length; $i++) {
+                $this->data[] = $buffer[$i];
+            }
+            return $this;
+        }
+        throw new InvalidArgumentException('Buffer must be array or Buffer when call concat.');
+    }
+
+    /**
      * decodeToData
      * 
      * @param mixed $input
