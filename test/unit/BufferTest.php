@@ -4,9 +4,15 @@ namespace Test\Unit;
 
 use Test\TestCase;
 use RLP\Buffer;
+use InvalidArgumentException;
 
 class BufferTest extends TestCase
 {
+    /**
+     * testCreateStringBuffer
+     * 
+     * @return void
+     */
     public function testCreateStringBuffer()
     {
         $buffer = new Buffer('Hello World', 'ascii');
@@ -17,5 +23,31 @@ class BufferTest extends TestCase
 
         $buffer = new Buffer('bcdabcdabcdabcd', 'hex');
         $this->assertEquals('bcdabcdabcdabcd', $buffer->toString('hex'));
+    }
+
+    /**
+     * testCreateArrayBuffer
+     * 
+     * @return void
+     */
+    public function testCreateArrayBuffer()
+    {
+        $buffer = new Buffer(['Hello World', 'abcdabcdabcdabcd'], 'ascii');
+        $this->assertEquals('Hello Worldabcdabcdabcdabcd', $buffer->toString('ascii'));
+
+        $buffer = new Buffer(['Hello World', 'abcdabcdabcdabcd'], 'ascii');
+        $this->assertEquals('48656c6c6f20576f726c6461626364616263646162636461626364', $buffer->toString('hex'));
+    }
+
+    /**
+     * testCreateMultidimentionalArrayBuffer
+     * 
+     * @return void
+     */
+    public function testCreateMultidimentionalArrayBuffer()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $buffer = new Buffer(['Hello World', 'abcdabcdabcdabcd', ['Hello World', 'abcdabcdabcdabcd']], 'ascii');
     }
 }

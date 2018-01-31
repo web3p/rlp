@@ -11,6 +11,7 @@
 
 namespace RLP;
 
+use InvalidArgumentException;
 use ArrayAccess;
 
 class Buffer implements ArrayAccess
@@ -162,11 +163,13 @@ class Buffer implements ArrayAccess
 
         foreach ($inputs as $input) {
             if (is_array($input)) {
-                $output[] = $this->arrayToData($input);
+                // throw exception, maybe support future
+                // $output[] = $this->arrayToData($input);
+                throw new InvalidArgumentException('Do not use multidimensional array.');
             } elseif (is_string($input)) {
-                $output[] = $this->stringToData($input, $this->encoding);
+                $output = array_merge($output, $this->stringToData($input, $this->encoding));
             } elseif (is_numeric($input)) {
-                $output[] = $this->numericToData($input);
+                $output = array_merge($output, $this->numericToData($input));
             }
         }
         return $output;
