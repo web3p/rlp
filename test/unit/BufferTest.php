@@ -50,4 +50,21 @@ class BufferTest extends TestCase
 
         $buffer = new Buffer(['Hello World', 'abcdabcdabcdabcd', ['Hello World', 'abcdabcdabcdabcd']], 'ascii');
     }
+
+    /**
+     * testCreateNumberBuffer
+     * 
+     * @return void
+     */
+    public function testCreateNumberBuffer()
+    {
+        $buffer = new Buffer(1);
+        $this->assertEquals('1', $buffer->toString('hex'));
+
+        $buffer = new Buffer(1.56);
+        $this->assertEquals('1', $buffer->toString('hex'));
+
+        $buffer = new Buffer(100);
+        $this->assertEquals('64', $buffer->toString('hex'));
+    }
 }
