@@ -137,6 +137,16 @@ class Buffer implements ArrayAccess
     }
 
     /**
+     * length
+     * 
+     * @return int
+     */
+    public function length()
+    {
+        return count($this->data);
+    }
+
+    /**
      * decodeToData
      * 
      * @param mixed $input
