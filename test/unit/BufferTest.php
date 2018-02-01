@@ -24,7 +24,7 @@ class BufferTest extends TestCase
         $this->assertEquals(8, $buffer->length());
 
         $buffer = new Buffer('bcdabcdabcdabcd', 'hex');
-        $this->assertEquals('bcdabcdabcdabcd', $buffer->toString('hex'));
+        $this->assertEquals('0bcdabcdabcdabcd', $buffer->toString('hex'));
         $this->assertEquals(8, $buffer->length());
 
         $buffer = new Buffer('我是測試');
@@ -92,17 +92,17 @@ class BufferTest extends TestCase
         $this->assertEquals(27, $buffer->length());
 
         $buffer->concat(['Test', 'Yo', 1]);
-        $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f1', $buffer->toString('hex'));
+        $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f01', $buffer->toString('hex'));
         $this->assertEquals(34, $buffer->length());
 
         $bufferB = new Buffer(['A lo ha'], 'ascii');
         $buffer->concat($bufferB);
-        $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f141206c6f206861', $buffer->toString('hex'));
+        $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f0141206c6f206861', $buffer->toString('hex'));
         $this->assertEquals(41, $buffer->length());
 
         $bufferC = new Buffer(['Goog'], 'ascii');
         $buffer->concat($bufferC, ['yo']);
-        $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f141206c6f206861476f6f67796f', $buffer->toString('hex'));
+        $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f0141206c6f206861476f6f67796f', $buffer->toString('hex'));
         $this->assertEquals(47, $buffer->length());
     }
 }

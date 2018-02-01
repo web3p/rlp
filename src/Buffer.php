@@ -111,9 +111,10 @@ class Buffer implements ArrayAccess
             foreach ($input as $data)  {
                 $hex = dechex($data);
 
-                // if ((strlen($hex) % 2) !== 0) {
-                //     $hex = '0' . $hex;
-                // }
+                // pad zero
+                if ((strlen($hex) % 2) !== 0) {
+                    $hex = '0' . $hex;
+                }
                 $output .= $hex;
             }
             break;
