@@ -23,4 +23,27 @@ class RLPTest extends TestCase
         $this->assertEquals('c982abcd82deff82aaaa', $encoded->toString('hex'));
         $this->assertEquals(10, $encoded->length());
     }
+
+    /**
+     * testDecode
+     * 
+     * @return void
+     */
+    public function testDecode()
+    {
+        $rlp = $this->rlp;
+        $encoded = '0x' . $rlp->encode(['dog', 'god', 'cat'])->toString('hex');
+        $decoded = $rlp->decode($encoded);
+        $this->assertEquals(3, count($decoded));
+        $this->assertEquals('dog', $decoded[0]->toString('utf8'));
+        $this->assertEquals('god', $decoded[1]->toString('utf8'));
+        $this->assertEquals('cat', $decoded[2]->toString('utf8'));
+
+        $encoded = '0x' . $rlp->encode(['0xabcd', '0xdeff', '0xaaaa'])->toString('hex');
+        $decoded = $rlp->decode($encoded);
+        $this->assertEquals(3, count($decoded));
+        $this->assertEquals('abcd', $decoded[0]->toString('hex'));
+        $this->assertEquals('deff', $decoded[1]->toString('hex'));
+        $this->assertEquals('aaaa', $decoded[2]->toString('hex'));
+    }
 }

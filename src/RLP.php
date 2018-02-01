@@ -12,6 +12,7 @@
 namespace RLP;
 
 use InvalidArgumentException;
+use RuntimeException;
 use RLP\Buffer;
 
 class RLP
@@ -41,6 +42,121 @@ class RLP
             return $input[0];
         } else {
             return $output->concat($this->encodeLength($length, 128), $input);
+        }
+    }
+
+    /**
+     * decode
+     * Maybe use bignumber future.
+     * 
+     * @param string $input
+     * @return array
+     */
+    public function decode($input)
+    {
+        if (!is_string($input)) {
+            throw new InvalidArgumentException('Input must be string when call decode.');
+        }
+        $input = $this->toBuffer($input);
+        $decoded = $this->decodeData($input);
+
+        return $decoded['data'];
+    }
+
+    /**
+     * decodeData
+     * Maybe use bignumber future.
+     * 
+     * @param \RLP\Buffer $input
+     * @return array
+     */
+    protected function decodeData($input)
+    {
+        $firstByte = $input[0];
+        $output = new Buffer;
+
+        if ($firstByte <= 0x7f) {
+            return [
+                'data' => $input->slice(0, 1),
+                'remainder' => $input->slice(1)
+            ];
+        } elseif ($firstByte <= 0xb7) {
+            $length = $firstByte - 0x7f;
+            $data = new Buffer([]);
+
+            if ($firstByte !== 0x80) {
+                // for ($i = 1; $i < $length; $i++) {
+                //     $data[] = $input[$i];
+                // }
+                $data = $input->slice(1, $length);
+            }
+            if ($length === 2 && $data[0] < 0x80) {
+                throw new RuntimeException('Byte must be less than 0x80.');
+            }
+            return [
+                'data' => $data,
+                'remainder' => $input->slice($length)
+            ];
+        } elseif ($firstByte <= 0xbf) {
+            $llength = $firstByte - 0xb6;
+            $hexLength = $input->slice(1, $llength)->toString('hex');
+
+            if ($hexLength === '00') {
+                throw new RuntimeException('Invalid RLP.');
+            }
+            $length = hexdec($hexLength);
+            $data = $input->slice($llength, $length + $llength);
+
+            if ($data->length() < $length) {
+                throw new RuntimeException('Invalid RLP.');
+            }
+            return [
+                'data' => $data,
+                'remainder' => $input->slice($length + $llength)
+            ];
+        } elseif ($firstByte <= 0xf7) {
+            $length = $firstByte - 0xbf;
+            $innerRemainder = $input->slice(1, $length);
+            $decoded = [];
+
+            while ($innerRemainder->length()) {
+                $data = $this->decodeData($innerRemainder);
+                $decoded[] = $data['data'];
+                $innerRemainder = $data['remainder'];
+            }
+            return [
+                'data' => $decoded,
+                'remainder' => $input->slice($length)
+            ];
+        } else {
+            $llength = $firstByte - 0xf6;
+            $hexLength = $input->slice(1, $llength)->toString('hex');
+            $decoded = [];
+
+            if ($hexLength === '00') {
+                throw new RuntimeException('Invalid RLP.');
+            }
+            $length = hexdec($hexLength);
+            $totalLength = $llength + $length;
+
+            if ($totalLength > $input->length()) {
+                throw new RuntimeException('Invalid RLP: total length is bigger than data length.');
+            }
+            $innerRemainder = $input->slice($llength, $totalLength);
+
+            if ($innerRemainder->length() === 0) {
+                throw new RuntimeException('Invalid RLP: list has invalid length.');
+            }
+
+            while ($innerRemainder->length()) {
+                $data = $this->decodeData($innerRemainder);
+                $decoded[] = $data['data'];
+                $innerRemainder = $data['remainder'];
+            }
+            return [
+                'data' => $decoded,
+                'remainder' => $input->slice($length)
+            ];
         }
     }
 

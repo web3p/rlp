@@ -126,7 +126,7 @@ class Buffer implements ArrayAccess
             case 'utf8':
             $length = count($input);
 
-            for ($i = 1; $i <= $length; $i += 3) {
+            for ($i = array_keys($input)[0]; $i < $length; $i += 3) {
                 $output .= chr($input[$i]) . chr($input[$i + 1]) . chr($input[$i + 2]);
             }
             break;
