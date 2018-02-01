@@ -149,23 +149,28 @@ class Buffer implements ArrayAccess
     /**
      * concat
      * 
-     * @param mixed $buffer
+     * @param mixed $inputs
      * @return \RLP\Buffer
      */
-    public function concat($buffer)
+    public function concat()
     {
-        if (is_array($buffer)) {
-            $buffer = new Buffer($buffer);
-        }
-        if ($buffer instanceof Buffer) {
-            $length = $buffer->length();
+        $inputs = func_get_args();
 
-            for ($i = 0; $i < $length; $i++) {
-                $this->data[] = $buffer[$i];
+        foreach ($inputs as $input) {
+            if (is_array($input)) {
+                $input = new Buffer($input);
             }
-            return $this;
+            if ($input instanceof Buffer) {
+                $length = $input->length();
+
+                for ($i = 0; $i < $length; $i++) {
+                    $this->data[] = $input[$i];
+                }
+            } else {
+                throw new InvalidArgumentException('Input must be array or Buffer when call concat.');
+            }
         }
-        throw new InvalidArgumentException('Buffer must be array or Buffer when call concat.');
+        return $this;
     }
 
     /**

@@ -99,5 +99,10 @@ class BufferTest extends TestCase
         $buffer->concat($bufferB);
         $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f141206c6f206861', $buffer->toString('hex'));
         $this->assertEquals(41, $buffer->length());
+
+        $bufferC = new Buffer(['Goog'], 'ascii');
+        $buffer->concat($bufferC, ['yo']);
+        $this->assertEquals('48656c6c6f20576f726c646162636461626364616263646162636454657374596f141206c6f206861476f6f67796f', $buffer->toString('hex'));
+        $this->assertEquals(47, $buffer->length());
     }
 }
