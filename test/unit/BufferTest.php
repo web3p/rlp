@@ -46,6 +46,10 @@ class BufferTest extends TestCase
 
         $buffer = new Buffer(['Hello World', 'abcdabcdabcdabcd'], 'ascii');
         $this->assertEquals('48656c6c6f20576f726c6461626364616263646162636461626364', $buffer->toString('hex'));
+
+        $buffer = new Buffer([''], 'ascii');
+        $this->assertEquals('00', $buffer->toString('hex'));
+        $this->assertEquals(1, $buffer->length());
     }
 
     /**
