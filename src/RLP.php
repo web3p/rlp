@@ -24,27 +24,24 @@ class RLP
      */
     public function encode($inputs)
     {
-        if (!is_array($inputs)) {
-            throw new InvalidArgumentException('Inputs must be array when call encode.');
+        if (is_array($inputs)) {
+            $output = new Buffer;
+            $result = new Buffer;
+
+            foreach ($inputs as $input) {
+                $output->concat($this->encode($input));
+            }
+            return $result->concat($this->encodeLength($output->length(), 192), $output);
         }
         $output = new Buffer;
+        $input = $this->toBuffer($inputs);
+        $length = $input->length();
 
-        foreach ($inputs as $input) {
-            if (is_array($input)) {
-                $output->concat($this->encode($input));
-            } else {
-                $input = $this->toBuffer($input);
-                $length = $input->length();
-
-                if ($length === 1) {
-                    $output[] = $input[0];
-                } else {
-                    $output->concat($this->encodeLength($length, 128), $input);
-                }
-            }
+        if ($length === 1 && $input[0] < 128) {
+            return $input[0];
+        } else {
+            return $output->concat($this->encodeLength($length, 128), $input);
         }
-        $result = new Buffer;
-        return $result->concat($this->encodeLength($output->length(), 192), $output);
     }
 
     /**
@@ -60,11 +57,10 @@ class RLP
             throw new InvalidArgumentException('Length and offset must be int when call encodeLength.');
         }
         if ($length < 56) {
-            return new Buffer($this->intToHex($length), 'hex');
+            return new Buffer($length + $offset);
         }
         $hexLength = $this->intToHex($length);
         $firstByte = $this->intToHex($offset + 55 + (strlen($hexLength) / 2));
-        var_dump($firstByte . $hexLength);
         return new Buffer($firstByte . $hexLength, 'hex');
     }
 

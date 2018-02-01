@@ -16,11 +16,11 @@ class RLPTest extends TestCase
         $rlp = $this->rlp;
 
         $encoded = $rlp->encode(['dog', 'god', 'cat']);
-        $this->assertEquals('0c03646f6703676f6403636174', $encoded->toString('hex'));
+        $this->assertEquals('cc83646f6783676f6483636174', $encoded->toString('hex'));
         $this->assertEquals(13, $encoded->length());
 
         $encoded = $rlp->encode(['0xabcd', '0xdeff', '0xaaaa']);
-        $this->assertEquals('0902abcd02deff02aaaa', $encoded->toString('hex'));
+        $this->assertEquals('c982abcd82deff82aaaa', $encoded->toString('hex'));
         $this->assertEquals(10, $encoded->length());
     }
 }
