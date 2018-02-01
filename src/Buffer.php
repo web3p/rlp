@@ -175,6 +175,27 @@ class Buffer implements ArrayAccess
     }
 
     /**
+     * slice
+     * 
+     * @param int $start
+     * @param int $end
+     * @return \RLP\Buffer
+     */
+    public function slice($start=0, $end=null)
+    {
+        if ($end === null) {
+            $end = $this->length();
+        }
+        if ($end > 0) {
+            $end -= $start;
+        } elseif ($end === 0) {
+            return new Buffer([]);
+        }
+        $sliced = array_slice($this->data, $start, $end);
+        return new Buffer($sliced);
+    }
+
+    /**
      * decodeToData
      * 
      * @param mixed $input
