@@ -124,10 +124,14 @@ class Buffer implements ArrayAccess
             }
             break;
             case 'utf8':
-            $length = count($input);
+            // $length = count($input);
 
-            for ($i = array_keys($input)[0]; $i < $length; $i += 3) {
-                $output .= chr($input[$i]) . chr($input[$i + 1]) . chr($input[$i + 2]);
+            // for ($i = array_keys($input)[0]; $i < $length; $i += 3) {
+            //     $output .= chr($input[$i]) . chr($input[$i + 1]) . chr($input[$i + 2]);
+            // }
+            // change to bytes string
+            foreach ($input as $data)  {
+                $output .= chr($data);
             }
             break;
             default:
