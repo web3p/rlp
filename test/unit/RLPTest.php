@@ -4,8 +4,13 @@ namespace Test\Unit;
 
 use Test\TestCase;
 
-class EncodeTest extends TestCase
+class RLPTest extends TestCase
 {
+    /**
+     * testEncode
+     * 
+     * @return void
+     */
     public function testEncode()
     {
         $rlp = $this->rlp;
