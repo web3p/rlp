@@ -37,7 +37,7 @@ class Buffer implements ArrayAccess
      * @param string $encoding the data encoding
      * @return void
      */
-    public function __construct($data, $encoding = 'utf8')
+    public function __construct($data = [], $encoding = 'utf8')
     {
         $this->encoding = strtolower($encoding);
 
