@@ -20,7 +20,7 @@ class RLP
     /**
      * encode
      * 
-     * @param array $inputs array of string
+     * @param mixed $inputs array of string
      * @return string
      */
     public function encode($inputs)

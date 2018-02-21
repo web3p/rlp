@@ -74,7 +74,7 @@ class Buffer implements ArrayAccess
     }
 
     /**
-     * offsetUnet
+     * offsetUnset
      * 
      * @param mixed $offset
      * @return void
