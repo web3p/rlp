@@ -52,11 +52,11 @@ class RLP
      * @param string $input
      * @return array
      */
-    public function decode($input)
+    public function decode(string $input)
     {
-        if (!is_string($input)) {
-            throw new InvalidArgumentException('Input must be string when call decode.');
-        }
+        // if (!is_string($input)) {
+        //     throw new InvalidArgumentException('Input must be string when call decode.');
+        // }
         $input = $this->toBuffer($input);
         $decoded = $this->decodeData($input);
 
@@ -70,7 +70,7 @@ class RLP
      * @param \RLP\Buffer $input
      * @return array
      */
-    protected function decodeData($input)
+    protected function decodeData(Buffer $input)
     {
         $firstByte = $input[0];
         $output = new Buffer;
@@ -167,11 +167,11 @@ class RLP
      * @param int $offset
      * @return \RLP\Buffer
      */
-    protected function encodeLength($length, $offset)
+    protected function encodeLength(int $length, int $offset)
     {
-        if (!is_int($length) || !is_int($offset)) {
-            throw new InvalidArgumentException('Length and offset must be int when call encodeLength.');
-        }
+        // if (!is_int($length) || !is_int($offset)) {
+        //     throw new InvalidArgumentException('Length and offset must be int when call encodeLength.');
+        // }
         if ($length < 56) {
             return new Buffer($length + $offset);
         }
@@ -186,11 +186,11 @@ class RLP
      * @param int $value
      * @return string
      */
-    protected function intToHex($value)
+    protected function intToHex(int $value)
     {
-        if (!is_int($value)) {
-            throw new InvalidArgumentException('Value must be int when call intToHex.');
-        }
+        // if (!is_int($value)) {
+        //     throw new InvalidArgumentException('Value must be int when call intToHex.');
+        // }
         $hex = dechex($value);
 
         return $this->padToEven($hex);
@@ -202,11 +202,11 @@ class RLP
      * @param string $value
      * @return string
      */
-    protected function padToEven($value)
+    protected function padToEven(string $value)
     {
-        if (!is_string($value)) {
-            throw new InvalidArgumentException('Value must be string when call padToEven.');
-        }
+        // if (!is_string($value)) {
+        //     throw new InvalidArgumentException('Value must be string when call padToEven.');
+        // }
         if ((strlen($value) % 2) !== 0 ) {
             $value = '0' . $value;
         }
