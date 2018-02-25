@@ -15,7 +15,7 @@ composer require web3p/rlp
 # Usage
 
 RLP encode:
-```
+```php
 use RLP\RLP;
 
 $rlp = new RLP;
@@ -26,7 +26,7 @@ $encodedBuffer->toString($encoding);
 ```
 
 RLP decode:
-```
+```php
 use RLP\RLP;
 
 $rlp = new RLP;
