@@ -39,7 +39,7 @@ class RLP
         $length = $input->length();
 
         if ($length === 1 && $input[0] < 128) {
-            return $input[0];
+            return [$input[0]];
         } else {
             return $output->concat($this->encodeLength($length, 128), $input);
         }
