@@ -31,6 +31,17 @@ class BufferTest extends TestCase
         $this->assertEquals('我是測試', $buffer->toString('utf8'));
         $this->assertEquals('e68891e698afe6b8ace8a9a6', $buffer->toString('hex'));
         $this->assertEquals(12, $buffer->length());
+
+        try {
+            $this->assertEquals('我是測試', $buffer->toString('wrongencoding'));
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals('ToString encoding must be valid.', $e->getMessage());
+        }
+        try {
+            $buffer = new Buffer('Wrong encoding.', 'wrongencoding');
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals('StringToData encoding must be valid.', $e->getMessage());
+        }
     }
 
     /**
@@ -129,5 +140,24 @@ class BufferTest extends TestCase
 
         $this->assertEquals('', $buffer->slice(2, 0)->toString('ascii'));
         $this->assertEquals(0, $buffer->slice(2, 0)->length());
+    }
+
+    /**
+     * testArrayAccess
+     * 
+     * @return void
+     */
+    public function testArrayAccess()
+    {
+        $buffer = new Buffer('Hello World', 'ascii');
+        $this->assertTrue(isset($buffer[10]));
+
+        $buffer[11] = 65;
+        $this->assertEquals('Hello WorldA', $buffer->toString('ascii'));
+        $this->assertEquals(12, $buffer->length());
+
+        unset($buffer[11]);
+        $this->assertEquals('Hello World', $buffer->toString('ascii'));
+        $this->assertEquals(11, $buffer->length());
     }
 }
