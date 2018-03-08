@@ -31,6 +31,17 @@ class BufferTest extends TestCase
         $this->assertEquals('我是測試', $buffer->toString('utf8'));
         $this->assertEquals('e68891e698afe6b8ace8a9a6', $buffer->toString('hex'));
         $this->assertEquals(12, $buffer->length());
+
+        try {
+            $this->assertEquals('我是測試', $buffer->toString('wrongencoding'));
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals('ToString encoding must be valid.', $e->getMessage());
+        }
+        try {
+            $buffer = new Buffer('Wrong encoding.', 'wrongencoding');
+        } catch (InvalidArgumentException $e) {
+            $this->assertEquals('StringToData encoding must be valid.', $e->getMessage());
+        }
     }
 
     /**

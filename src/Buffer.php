@@ -21,14 +21,14 @@ class Buffer implements ArrayAccess
      * 
      * @var array
      */
-    protected $data=[];
+    protected $data = [];
 
     /**
      * encoding
      * 
      * @var string
      */
-    protected $encoding='';
+    protected $encoding = '';
 
     /**
      * construct
@@ -135,7 +135,7 @@ class Buffer implements ArrayAccess
             }
             break;
             default:
-            $output = implode('', $input);
+            throw new InvalidArgumentException('ToString encoding must be valid.');
             break;
         }
         return $output;
@@ -274,7 +274,7 @@ class Buffer implements ArrayAccess
             $output = unpack('C*', $input);
             break;
             default:
-            $output = str_split($input, 1);
+            throw new InvalidArgumentException('StringToData encoding must be valid.');
             break;
         }
         return $output;
