@@ -3,7 +3,7 @@
 namespace Test\Unit;
 
 use Test\TestCase;
-use RLP\Buffer;
+use Web3p\RLP\Buffer;
 use InvalidArgumentException;
 
 class BufferTest extends TestCase

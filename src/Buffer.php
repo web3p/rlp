@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-namespace RLP;
+namespace Web3p\RLP;
 
 use InvalidArgumentException;
 use ArrayAccess;

@@ -9,11 +9,11 @@
  * @license MIT
  */
 
-namespace RLP;
+namespace Web3p\RLP;
 
 use InvalidArgumentException;
 use RuntimeException;
-use RLP\Buffer;
+use Web3p\RLP\Buffer;
 
 class RLP
 {

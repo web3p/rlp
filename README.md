@@ -16,7 +16,7 @@ composer require web3p/rlp
 
 RLP encode:
 ```php
-use RLP\RLP;
+use Web3p\RLP\RLP;
 
 $rlp = new RLP;
 $encodedBuffer = $rlp->encode(['dog']);
@@ -27,7 +27,7 @@ $encodedBuffer->toString($encoding);
 
 RLP decode:
 ```php
-use RLP\RLP;
+use Web3p\RLP\RLP;
 
 $rlp = new RLP;
 $encodedBuffer = $rlp->encode(['dog']);
