@@ -37,9 +37,10 @@ class RLP
         $output = new Buffer;
         $input = $this->toBuffer($inputs);
         $length = $input->length();
+        // var_dump($input);
 
         if ($length === 1 && $input[0] < 128) {
-            return [$input[0]];
+            return $input;
         } else {
             return $output->concat($this->encodeLength($length, 128), $input);
         }
@@ -173,6 +174,7 @@ class RLP
         //     throw new InvalidArgumentException('Length and offset must be int when call encodeLength.');
         // }
         if ($length < 56) {
+            // var_dump($length, $offset);
             return new Buffer($length + $offset);
         }
         $hexLength = $this->intToHex($length);
@@ -244,7 +246,8 @@ class RLP
     protected function toBuffer($input)
     {
         if (is_numeric($input)) {
-            return new Buffer($input);
+            $gmpInput = gmp_init($input, 10);
+            return new Buffer('0x' . gmp_strval($gmpInput, 16), 'hex');
         } elseif (is_string($input)) {
             if (strpos($input, '0x') === 0) {
                 // hex string

@@ -256,6 +256,10 @@ class Buffer implements ArrayAccess
 
         switch ($encoding) {
             case 'hex':
+            if (strpos($input, '0x') === 0) {
+                // hex string
+                $input = str_replace('0x', '', $input);
+            }
             if (strlen($input) % 2 !== 0) {
                 $input = '0' . $input;
             }

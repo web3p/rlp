@@ -46,4 +46,24 @@ class RLPTest extends TestCase
         $this->assertEquals('deff', $decoded[1]->toString('hex'));
         $this->assertEquals('aaaa', $decoded[2]->toString('hex'));
     }
+
+    /**
+     * testValidRlp
+     * 
+     * @return void
+     */
+    public function testValidRlp()
+    {
+        $rlp = $this->rlp;
+        $rlptestJson = file_get_contents(sprintf("%s%srlptest.json", __DIR__, DIRECTORY_SEPARATOR));
+
+        $this->assertTrue($rlptestJson !== false);
+        $rlptest = json_decode($rlptestJson, true);
+        
+        foreach ($rlptest as $test) {
+            $encoded = $rlp->encode($test['in']);
+
+            $this->assertEquals($test['out'], $encoded->toString('hex'));
+        }
+    }
 }
