@@ -175,11 +175,11 @@ class RLP
         // }
         if ($length < 56) {
             // var_dump($length, $offset);
-            return new Buffer($length + $offset);
+            return new Buffer(strval($length + $offset));
         }
         $hexLength = $this->intToHex($length);
         $firstByte = $this->intToHex($offset + 55 + (strlen($hexLength) / 2));
-        return new Buffer($firstByte . $hexLength, 'hex');
+        return new Buffer(strval($firstByte . $hexLength), 'hex');
     }
 
     /**

@@ -64,6 +64,26 @@ class BufferTest extends TestCase
     }
 
     /**
+     * testCreateIntegerBuffer
+     * 
+     * @return void
+     */
+    public function testCreateIntegerBuffer()
+    {
+        $buffer = new Buffer(10);
+        $this->assertEquals('00000000000000000000', $buffer->toString('hex'));
+        $this->assertEquals(10, $buffer->length());
+
+        $buffer = new Buffer(15);
+        $this->assertEquals('000000000000000000000000000000', $buffer->toString('hex'));
+        $this->assertEquals(15, $buffer->length());
+
+        $buffer = new Buffer(20);
+        $this->assertEquals('0000000000000000000000000000000000000000', $buffer->toString('hex'));
+        $this->assertEquals(20, $buffer->length());
+    }
+
+    /**
      * testCreateMultidimentionalArrayBuffer
      * 
      * @return void
@@ -82,7 +102,7 @@ class BufferTest extends TestCase
      */
     public function testCreateNumberBuffer()
     {
-        $buffer = new Buffer(1);
+        $buffer = new Buffer('1');
         $this->assertEquals('1', $buffer->toString('hex'));
         $this->assertEquals(1, $buffer->length());
 

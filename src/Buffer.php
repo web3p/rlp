@@ -211,6 +211,8 @@ class Buffer implements ArrayAccess
 
         if (is_array($input)) {
             $output = $this->arrayToData($input);
+        } elseif (is_int($input)) {
+            $output = $this->intToData($input);
         } elseif (is_numeric($input)) {
             $output = $this->numericToData($input);
         } elseif (is_string($input)) {
@@ -295,5 +297,16 @@ class Buffer implements ArrayAccess
         $output = (int) $intput;
 
         return [$output];
+    }
+
+    /**
+     * intToData
+     * 
+     * @param mixed $intput
+     * @return array
+     */
+    protected function intToData($input)
+    {
+        return array_fill(0, $input, 0);
     }
 }
