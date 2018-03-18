@@ -66,4 +66,25 @@ class RLPTest extends TestCase
             $this->assertEquals($test['out'], $encoded->toString('hex'));
         }
     }
+
+    /**
+     * testInvalidRlp
+     * Try to figure out what invalidrlptest.json is.
+     * 
+     * @return void
+     */
+    // public function testInvalidRlp()
+    // {
+    //     $rlp = $this->rlp;
+    //     $invalidrlptestJson = file_get_contents(sprintf("%s%sinvalidrlptest.json", __DIR__, DIRECTORY_SEPARATOR));
+
+    //     $this->assertTrue($invalidrlptestJson !== false);
+    //     $invalidrlptest = json_decode($invalidrlptestJson, true);
+        
+    //     foreach ($invalidrlptest as $test) {
+    //         $encoded = $rlp->encode($test['in']);
+
+    //         $this->assertEquals($test['out'], $encoded->toString('hex'));
+    //     }
+    // }
 }
