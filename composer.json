@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "RLP\\": "src/"
+            "Web3p\\RLP\\": "src/"
         }
     },
     "autoload-dev": {

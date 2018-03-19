@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-namespace RLP;
+namespace Web3p\RLP;
 
 use InvalidArgumentException;
 use ArrayAccess;
@@ -211,6 +211,8 @@ class Buffer implements ArrayAccess
 
         if (is_array($input)) {
             $output = $this->arrayToData($input);
+        } elseif (is_int($input)) {
+            $output = $this->intToData($input);
         } elseif (is_numeric($input)) {
             $output = $this->numericToData($input);
         } elseif (is_string($input)) {
@@ -256,6 +258,10 @@ class Buffer implements ArrayAccess
 
         switch ($encoding) {
             case 'hex':
+            if (strpos($input, '0x') === 0) {
+                // hex string
+                $input = str_replace('0x', '', $input);
+            }
             if (strlen($input) % 2 !== 0) {
                 $input = '0' . $input;
             }
@@ -291,5 +297,16 @@ class Buffer implements ArrayAccess
         $output = (int) $intput;
 
         return [$output];
+    }
+
+    /**
+     * intToData
+     * 
+     * @param mixed $intput
+     * @return array
+     */
+    protected function intToData($input)
+    {
+        return array_fill(0, $input, 0);
     }
 }

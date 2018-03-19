@@ -9,11 +9,11 @@
  * @license MIT
  */
 
-namespace RLP;
+namespace Web3p\RLP;
 
 use InvalidArgumentException;
 use RuntimeException;
-use RLP\Buffer;
+use Web3p\RLP\Buffer;
 
 class RLP
 {
@@ -21,7 +21,7 @@ class RLP
      * encode
      * 
      * @param mixed $inputs array of string
-     * @return string
+     * @return \Web3p\RLP\Buffer
      */
     public function encode($inputs)
     {
@@ -37,9 +37,10 @@ class RLP
         $output = new Buffer;
         $input = $this->toBuffer($inputs);
         $length = $input->length();
+        // var_dump($input);
 
         if ($length === 1 && $input[0] < 128) {
-            return [$input[0]];
+            return $input;
         } else {
             return $output->concat($this->encodeLength($length, 128), $input);
         }
@@ -67,7 +68,7 @@ class RLP
      * decodeData
      * Maybe use bignumber future.
      * 
-     * @param \RLP\Buffer $input
+     * @param \Web3p\RLP\Buffer $input
      * @return array
      */
     protected function decodeData(Buffer $input)
@@ -165,7 +166,7 @@ class RLP
      * 
      * @param int $length
      * @param int $offset
-     * @return \RLP\Buffer
+     * @return \Web3p\RLP\Buffer
      */
     protected function encodeLength(int $length, int $offset)
     {
@@ -173,11 +174,12 @@ class RLP
         //     throw new InvalidArgumentException('Length and offset must be int when call encodeLength.');
         // }
         if ($length < 56) {
-            return new Buffer($length + $offset);
+            // var_dump($length, $offset);
+            return new Buffer(strval($length + $offset));
         }
         $hexLength = $this->intToHex($length);
         $firstByte = $this->intToHex($offset + 55 + (strlen($hexLength) / 2));
-        return new Buffer($firstByte . $hexLength, 'hex');
+        return new Buffer(strval($firstByte . $hexLength), 'hex');
     }
 
     /**
@@ -239,12 +241,13 @@ class RLP
      * Format input to buffer.
      * 
      * @param mixed $input
-     * @return \RLP\Buffer
+     * @return \Web3p\RLP\Buffer
      */
     protected function toBuffer($input)
     {
         if (is_numeric($input)) {
-            return new Buffer($input);
+            $gmpInput = gmp_init($input, 10);
+            return new Buffer('0x' . gmp_strval($gmpInput, 16), 'hex');
         } elseif (is_string($input)) {
             if (strpos($input, '0x') === 0) {
                 // hex string
