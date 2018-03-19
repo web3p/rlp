@@ -41,7 +41,58 @@ echo $decodedArray[0]->toString('utf8');
 
 # API
 
-Todo.
+### Web3p\RLP\RLP
+
+#### encode
+
+Returns recursive length prefix encoding of given data.
+
+`encode(mixed $inputs)`
+
+Mixed inputs - array of string, integer or numeric string.
+
+###### Example
+
+* Encode array of string.
+
+```php
+use Web3p\RLP\RLP;
+
+$rlp = new RLP;
+$encodedBuffer = $rlp->encode(['web3p', 'ethereum', 'solidity']);
+$encodedString = $enccodedBuffer->toString('hex');
+
+```
+
+#### decode
+
+Returns array recursive length prefix decoding of given data.
+
+`decode(string $input)`
+
+String input - recursive length prefix encoded string.
+
+###### Example
+
+* Decode recursive length prefix encoded string.
+
+```php
+use Web3p\RLP\RLP;
+
+$rlp = new RLP;
+$encodedBuffer = $rlp->encode(['web3p', 'ethereum', 'solidity']);
+$encodedString = $enccodedBuffer->toString('hex');
+$decodedArray = $rlp->decode('0x' . $encodedString);
+
+// echo web3p
+echo $decodedArray[0]->toString('utf8');
+
+// echo ethereum
+echo $decodedArray[1]->toString('utf8');
+
+// echo solidity
+echo $decodedArray[2]->toString('utf8');
+```
 
 # License
 MIT
