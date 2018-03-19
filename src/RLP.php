@@ -21,7 +21,7 @@ class RLP
      * encode
      * 
      * @param mixed $inputs array of string
-     * @return string
+     * @return \Web3p\RLP\Buffer
      */
     public function encode($inputs)
     {
@@ -68,7 +68,7 @@ class RLP
      * decodeData
      * Maybe use bignumber future.
      * 
-     * @param \RLP\Buffer $input
+     * @param \Web3p\RLP\Buffer $input
      * @return array
      */
     protected function decodeData(Buffer $input)
@@ -166,7 +166,7 @@ class RLP
      * 
      * @param int $length
      * @param int $offset
-     * @return \RLP\Buffer
+     * @return \Web3p\RLP\Buffer
      */
     protected function encodeLength(int $length, int $offset)
     {
@@ -241,7 +241,7 @@ class RLP
      * Format input to buffer.
      * 
      * @param mixed $input
-     * @return \RLP\Buffer
+     * @return \Web3p\RLP\Buffer
      */
     protected function toBuffer($input)
     {
