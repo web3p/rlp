@@ -37,7 +37,6 @@ class RLP
         $output = new Buffer;
         $input = $this->toBuffer($inputs);
         $length = $input->length();
-        // var_dump($input);
 
         if ($length === 1 && $input[0] < 128) {
             return $input;
@@ -251,7 +250,7 @@ class RLP
         } elseif (is_string($input)) {
             if (strpos($input, '0x') === 0) {
                 // hex string
-                $input = str_replace('0x', '', $input);
+                // $input = str_replace('0x', '', $input);
                 return new Buffer($input, 'hex');
             }
             return new Buffer(str_split($input, 1));
