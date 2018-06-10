@@ -244,16 +244,25 @@ class RLP
      */
     protected function toBuffer($input)
     {
-        if (is_numeric($input)) {
-            $gmpInput = gmp_init($input, 10);
-            return new Buffer('0x' . gmp_strval($gmpInput, 16), 'hex');
-        } elseif (is_string($input)) {
+        if (is_string($input)) {
             if (strpos($input, '0x') === 0) {
                 // hex string
                 // $input = str_replace('0x', '', $input);
                 return new Buffer($input, 'hex');
             }
             return new Buffer(str_split($input, 1));
+        } elseif (is_numeric($input)) {
+            if (!$input || $input < 0) {
+                return new Buffer([]);
+            }
+            if (is_float($input)) {
+                $input = number_format($input, 0, '', '');
+                var_dump($input);
+            }
+            $gmpInput = gmp_init($input, 10);
+            return new Buffer('0x' . gmp_strval($gmpInput, 16), 'hex');
+        } elseif ($input === null) {
+            return new Buffer([]);
         } elseif (is_array($input)) {
             return new Buffer($input);
         } elseif ($input instanceof Buffer) {
