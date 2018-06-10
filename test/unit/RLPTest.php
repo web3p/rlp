@@ -68,6 +68,26 @@ class RLPTest extends TestCase
     }
 
     /**
+     * testIssue14
+     * See: https://github.com/web3p/rlp/issues/14
+     * You can find test in: https://github.com/ethereum/wiki/wiki/RLP#examples
+     * 
+     * @return void
+     */
+    public function testIssue14()
+    {
+        $rlp = $this->rlp;
+        $this->assertEquals('c0', $rlp->encode([])->toString('hex'));
+        $this->assertEquals('80', $rlp->encode(0)->toString('hex'));
+        $this->assertEquals('80', $rlp->encode(0x0)->toString('hex'));
+        $this->assertEquals('80', $rlp->encode(-1)->toString('hex'));
+        $this->assertEquals('80', $rlp->encode(-2)->toString('hex'));
+        $this->assertEquals('30', $rlp->encode('0')->toString('hex'));
+        $this->assertEquals('00', $rlp->encode('0x0')->toString('hex'));
+        $this->assertEquals('80', $rlp->encode(null)->toString('hex'));
+    }
+
+    /**
      * testInvalidRlp
      * Try to figure out what invalidrlptest.json is.
      * 
