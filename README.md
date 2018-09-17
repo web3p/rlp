@@ -60,7 +60,7 @@ use Web3p\RLP\RLP;
 
 $rlp = new RLP;
 $encodedBuffer = $rlp->encode(['web3p', 'ethereum', 'solidity']);
-$encodedString = $enccodedBuffer->toString('hex');
+$encodedString = $encodedBuffer->toString('hex');
 
 ```
 
