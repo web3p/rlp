@@ -15,28 +15,38 @@ composer require web3p/rlp
 # Usage
 
 RLP encode:
+
 ```php
 use Web3p\RLP\RLP;
 
 $rlp = new RLP;
-$encodedBuffer = $rlp->encode(['dog']);
+// c483646f67
+$encoded = $rlp->encode(['dog']);
 
-// to string, encoding: ascii utf8 hex
-$encodedBuffer->toString($encoding);
+// 83646f67
+$encoded = $rlp->encode('dog');
 ```
 
 RLP decode:
+
 ```php
 use Web3p\RLP\RLP;
+use Web3p\RLP\Types\Str;
 
 $rlp = new RLP;
-$encodedBuffer = $rlp->encode(['dog']);
+$encoded = $rlp->encode(['dog']);
 
 // only accept 0x prefixed hex string
-$decodedArray = $rlp->decode('0x' . $encodedBuffer->toString('hex'));
+$decoded = $rlp->decode('0x' . $encoded);
+
+// show 646f67
+echo $decoded[0];
 
 // show dog
-echo $decodedArray[0]->toString('utf8');
+echo hex2bin($decoded[0]);
+
+// or you can
+echo Str::decodeHex($decoded[0]);
 ```
 
 # API
@@ -45,11 +55,13 @@ echo $decodedArray[0]->toString('utf8');
 
 #### encode
 
-Returns recursive length prefix encoding of given data.
+Returns recursive length prefix encoding of given inputs.
 
 `encode(mixed $inputs)`
 
 Mixed inputs - array of string, integer or numeric string.
+
+> Note: output is not zero prefixed.
 
 ###### Example
 
@@ -59,9 +71,7 @@ Mixed inputs - array of string, integer or numeric string.
 use Web3p\RLP\RLP;
 
 $rlp = new RLP;
-$encodedBuffer = $rlp->encode(['web3p', 'ethereum', 'solidity']);
-$encodedString = $encodedBuffer->toString('hex');
-
+$encoded = $rlp->encode(['web3p', 'ethereum', 'solidity']);
 ```
 
 #### decode
@@ -72,26 +82,33 @@ Returns array recursive length prefix decoding of given data.
 
 String input - recursive length prefix encoded string.
 
+> Note: output is not zero prefixed.
+
 ###### Example
 
 * Decode recursive length prefix encoded string.
 
 ```php
 use Web3p\RLP\RLP;
+use Web3p\RLP\Types\Str;
 
 $rlp = new RLP;
-$encodedBuffer = $rlp->encode(['web3p', 'ethereum', 'solidity']);
-$encodedString = $encodedBuffer->toString('hex');
-$decodedArray = $rlp->decode('0x' . $encodedString);
+$encoded = $rlp->encode(['web3p', 'ethereum', 'solidity']);
+$decoded = $rlp->decode('0x' . $encoded);
 
 // echo web3p
-echo $decodedArray[0]->toString('utf8');
+echo hex2bin($decoded[0]);
 
 // echo ethereum
-echo $decodedArray[1]->toString('utf8');
+echo hex2bin($decoded[1]);
 
 // echo solidity
-echo $decodedArray[2]->toString('utf8');
+echo hex2bin($decoded[2]);
+
+// or you can
+echo Str::decodeHex($decoded[0]);
+echo Str::decodeHex($decoded[1]);
+echo Str::decodeHex($decoded[2]);
 ```
 
 # License
