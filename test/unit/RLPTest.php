@@ -53,11 +53,14 @@ class RLPTest extends TestCase
         $this->assertEquals(199999, hexdec($decoded[0]));
         $this->assertEquals(1, hexdec($decoded[1]));
 
+        $encoded = '0x' . $rlp->encode('0x25');
+        $decoded = $rlp->decode($encoded);
+        $this->assertEquals('25', $decoded);
     }
 
     /**
      * testValidRlp
-     * 
+     *
      * @return void
      */
     public function testValidRlp()

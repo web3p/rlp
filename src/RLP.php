@@ -76,12 +76,12 @@ class RLP
 
         if ($firstByte <= 0x7f) {
             return [
-                'data' => $firstByte,
+                'data' => dechex($firstByte),
                 'remainder' => mb_substr($input, 2)
             ];
         } elseif ($firstByte <= 0xb7) {
             $length = $firstByte - 0x7f;
-            $data = [];
+            $data = '';
 
             if ($firstByte !== 0x80) {
                 $data = mb_substr($input, 2, ($length - 1) * 2);
@@ -113,7 +113,7 @@ class RLP
             ];
         } elseif ($firstByte <= 0xf7) {
             $length = $firstByte - 0xbf;
-            $innerRemainder = mb_substr($input, 2, $length * 2);
+            $innerRemainder = mb_substr($input, 2, ($length - 1) * 2);
             $decoded = [];
 
             while (mb_strlen($innerRemainder)) {
@@ -127,7 +127,7 @@ class RLP
             ];
         } else {
             $llength = $firstByte - 0xf6;
-            $hexLength = mb_substr($input, 2, $llength * 2);
+            $hexLength = mb_substr($input, 2, ($llength - 1) * 2);
             $decoded = [];
 
             if ($hexLength === '00') {
