@@ -14,123 +14,120 @@ namespace Web3p\RLP;
 use InvalidArgumentException;
 use RuntimeException;
 use Web3p\RLP\Buffer;
+use Web3p\RLP\Types\Str;
+use Web3p\RLP\Types\Numeric;
 
 class RLP
 {
     /**
      * encode
-     * 
-     * @param mixed $inputs array of string
-     * @return \Web3p\RLP\Buffer
+     *
+     * @param mixed $inputs array of data
+     * @return string
      */
     public function encode($inputs)
     {
+        $output = '';
         if (is_array($inputs)) {
-            $output = new Buffer;
-            $result = new Buffer;
-
             foreach ($inputs as $input) {
-                $output->concat($this->encode($input));
+                $output .= $this->encode($input);
             }
-            return $result->concat($this->encodeLength($output->length(), 192), $output);
+            $length = mb_strlen($output) / 2;
+            return $this->encodeLength($length, 192) . $output;
         }
-        $output = new Buffer;
-        $input = $this->toBuffer($inputs);
-        $length = $input->length();
+        $input = $this->encodeInput($inputs);
+        $length = mb_strlen($input) / 2;
 
-        if ($length === 1 && $input[0] < 128) {
+        if ($length === 1 && hexdec(mb_substr($input, 0, 2)) < 128) {
             return $input;
-        } else {
-            return $output->concat($this->encodeLength($length, 128), $input);
         }
+        return $this->encodeLength($length, 128) . $input;
     }
 
     /**
      * decode
      * Maybe use bignumber future.
-     * 
+     *
      * @param string $input
      * @return array
      */
     public function decode(string $input)
     {
-        // if (!is_string($input)) {
-        //     throw new InvalidArgumentException('Input must be string when call decode.');
-        // }
-        $input = $this->toBuffer($input);
+        if (strpos($input, '0x') === 0) {
+            $input = str_replace('0x', '', $input);
+        }
+        if (!preg_match('/[a-f0-9]/i', $input)) {
+            throw new InvalidArgumentException('The input type didn\'t support.');
+        }
+        $input = $this->padToEven($input);
         $decoded = $this->decodeData($input);
-
         return $decoded['data'];
     }
 
     /**
      * decodeData
-     * Maybe use bignumber future.
-     * 
-     * @param \Web3p\RLP\Buffer $input
+     *
+     * @param string $input
      * @return array
      */
-    protected function decodeData(Buffer $input)
+    protected function decodeData(string $input)
     {
-        $firstByte = $input[0];
-        $output = new Buffer;
+        $firstByte = hexdec(mb_substr($input, 0, 2));
 
         if ($firstByte <= 0x7f) {
             return [
-                'data' => $input->slice(0, 1),
-                'remainder' => $input->slice(1)
+                'data' => $firstByte,
+                'remainder' => mb_substr($input, 2)
             ];
         } elseif ($firstByte <= 0xb7) {
             $length = $firstByte - 0x7f;
-            $data = new Buffer([]);
+            $data = [];
 
             if ($firstByte !== 0x80) {
-                // for ($i = 1; $i < $length; $i++) {
-                //     $data[] = $input[$i];
-                // }
-                $data = $input->slice(1, $length);
+                $data = mb_substr($input, 2, ($length - 1) * 2);
             }
-            if ($length === 2 && $data[0] < 0x80) {
+            $firstByteData = hexdec(mb_substr($data, 0, 2));
+            if ($length === 2 && $firstByteData < 0x80) {
                 throw new RuntimeException('Byte must be less than 0x80.');
             }
             return [
                 'data' => $data,
-                'remainder' => $input->slice($length)
+                'remainder' => mb_substr($input, $length * 2)
             ];
         } elseif ($firstByte <= 0xbf) {
             $llength = $firstByte - 0xb6;
-            $hexLength = $input->slice(1, $llength)->toString('hex');
+            $hexLength = mb_substr($input, 2, ($llength - 1) * 2);
 
             if ($hexLength === '00') {
                 throw new RuntimeException('Invalid RLP.');
             }
             $length = hexdec($hexLength);
-            $data = $input->slice($llength, $length + $llength);
+            $data = mb_substr($input, $llength * 2, ($length + $llength - 1) * 2);
 
-            if ($data->length() < $length) {
+            if (mb_strlen($data) < $length * 2) {
                 throw new RuntimeException('Invalid RLP.');
             }
             return [
                 'data' => $data,
-                'remainder' => $input->slice($length + $llength)
+                'remainder' => mb_substr($input, ($length + $llength) * 2)
             ];
         } elseif ($firstByte <= 0xf7) {
             $length = $firstByte - 0xbf;
-            $innerRemainder = $input->slice(1, $length);
+            $innerRemainder = mb_substr($input, 2, $length * 2);
             $decoded = [];
 
-            while ($innerRemainder->length()) {
+            while (mb_strlen($innerRemainder)) {
                 $data = $this->decodeData($innerRemainder);
                 $decoded[] = $data['data'];
                 $innerRemainder = $data['remainder'];
             }
             return [
                 'data' => $decoded,
-                'remainder' => $input->slice($length)
+                'remainder' => mb_substr($input, $length * 2)
             ];
         } else {
             $llength = $firstByte - 0xf6;
-            $hexLength = $input->slice(1, $llength)->toString('hex');
+            $hexLength = mb_substr($input, 2, $llength * 2);
             $decoded = [];
 
             if ($hexLength === '00') {
@@ -139,23 +136,23 @@ class RLP
             $length = hexdec($hexLength);
             $totalLength = $llength + $length;
 
-            if ($totalLength > $input->length()) {
+            if ($totalLength * 2 > mb_strlen($input)) {
                 throw new RuntimeException('Invalid RLP: total length is bigger than data length.');
             }
-            $innerRemainder = $input->slice($llength, $totalLength);
+            $innerRemainder = $hexLength = mb_substr($input, $llength * 2, $totalLength * 2);
 
-            if ($innerRemainder->length() === 0) {
+            if (mb_strlen($innerRemainder) === 0) {
                 throw new RuntimeException('Invalid RLP: list has invalid length.');
             }
 
-            while ($innerRemainder->length()) {
+            while (mb_strlen($innerRemainder)) {
                 $data = $this->decodeData($innerRemainder);
                 $decoded[] = $data['data'];
                 $innerRemainder = $data['remainder'];
             }
             return [
                 'data' => $decoded,
-                'remainder' => $input->slice($length)
+                'remainder' => mb_substr($input, $length * 2)
             ];
         }
     }
@@ -165,20 +162,16 @@ class RLP
      * 
      * @param int $length
      * @param int $offset
-     * @return \Web3p\RLP\Buffer
+     * @return string
      */
     protected function encodeLength(int $length, int $offset)
     {
-        // if (!is_int($length) || !is_int($offset)) {
-        //     throw new InvalidArgumentException('Length and offset must be int when call encodeLength.');
-        // }
         if ($length < 56) {
-            // var_dump($length, $offset);
-            return new Buffer(strval($length + $offset));
+            return dechex(strval($length + $offset));
         }
         $hexLength = $this->intToHex($length);
         $firstByte = $this->intToHex($offset + 55 + (strlen($hexLength) / 2));
-        return new Buffer(strval($firstByte . $hexLength), 'hex');
+        return $firstByte . $hexLength;
     }
 
     /**
@@ -189,9 +182,6 @@ class RLP
      */
     protected function intToHex(int $value)
     {
-        // if (!is_int($value)) {
-        //     throw new InvalidArgumentException('Value must be int when call intToHex.');
-        // }
         $hex = dechex($value);
 
         return $this->padToEven($hex);
@@ -205,9 +195,6 @@ class RLP
      */
     protected function padToEven(string $value)
     {
-        // if (!is_string($value)) {
-        //     throw new InvalidArgumentException('Value must be string when call padToEven.');
-        // }
         if ((strlen($value) % 2) !== 0 ) {
             $value = '0' . $value;
         }
@@ -215,58 +202,23 @@ class RLP
     }
 
     /**
-     * toArray
-     * Format input to value, deprecated when we have toBuffer.
-     * 
+     * encodeInput
+     * Encode input to hex string.
+     *
      * @param mixed $input
-     * @return array
+     * @return string
      */
-    // protected function toArray($input)
-    // {
-    //     if (is_string($input)) {
-    //         if (strpos($input, '0x') === 0) {
-    //             // hex string
-    //             $value = str_replace('0x', '', $input);
-    //             return $input;
-    //         } else {
-    //             return str_split($input, 1);
-    //         }
-    //     }
-    //     throw new InvalidArgumentException('The input type didn\'t support.');
-    // }
-
-    /**
-     * toBuffer
-     * Format input to buffer.
-     * 
-     * @param mixed $input
-     * @return \Web3p\RLP\Buffer
-     */
-    protected function toBuffer($input)
+    protected function encodeInput($input)
     {
         if (is_string($input)) {
             if (strpos($input, '0x') === 0) {
-                // hex string
-                // $input = str_replace('0x', '', $input);
-                return new Buffer($input, 'hex');
+                return Str::encode($input, 'hex');
             }
-            return new Buffer(str_split($input, 1));
+            return Str::encode($input);
         } elseif (is_numeric($input)) {
-            if (!$input || $input < 0) {
-                return new Buffer([]);
-            }
-            if (is_float($input)) {
-                $input = number_format($input, 0, '', '');
-                var_dump($input);
-            }
-            $gmpInput = gmp_init($input, 10);
-            return new Buffer('0x' . gmp_strval($gmpInput, 16), 'hex');
+            return Numeric::encode($input);
         } elseif ($input === null) {
-            return new Buffer([]);
-        } elseif (is_array($input)) {
-            return new Buffer($input);
-        } elseif ($input instanceof Buffer) {
-            return $input;
+            return '';
         }
         throw new InvalidArgumentException('The input type didn\'t support.');
     }

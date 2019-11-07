@@ -3,6 +3,7 @@
 namespace Test\Unit;
 
 use Test\TestCase;
+use Web3p\RLP\Types\Str;
 
 class RLPTest extends TestCase
 {
@@ -16,35 +17,42 @@ class RLPTest extends TestCase
         $rlp = $this->rlp;
 
         $encoded = $rlp->encode(['dog', 'god', 'cat']);
-        $this->assertEquals('cc83646f6783676f6483636174', $encoded->toString('hex'));
-        $this->assertEquals(13, $encoded->length());
+        $this->assertEquals('cc83646f6783676f6483636174', $encoded);
 
         $encoded = $rlp->encode(['0xabcd', '0xdeff', '0xaaaa']);
-        $this->assertEquals('c982abcd82deff82aaaa', $encoded->toString('hex'));
-        $this->assertEquals(10, $encoded->length());
+        $this->assertEquals('c982abcd82deff82aaaa', $encoded);
+        $this->assertEquals('00', $rlp->encode(chr(0)));
+        $this->assertEquals('01', $rlp->encode(chr(1)));
     }
 
     /**
      * testDecode
-     * 
+     *
      * @return void
      */
     public function testDecode()
     {
         $rlp = $this->rlp;
-        $encoded = '0x' . $rlp->encode(['dog', 'god', 'cat'])->toString('hex');
+        $encoded = '0x' . $rlp->encode(['dog', 'god', 'cat']);
         $decoded = $rlp->decode($encoded);
         $this->assertEquals(3, count($decoded));
-        $this->assertEquals('dog', $decoded[0]->toString('utf8'));
-        $this->assertEquals('god', $decoded[1]->toString('utf8'));
-        $this->assertEquals('cat', $decoded[2]->toString('utf8'));
+        $this->assertEquals('dog', Str::decodeHex(strtoupper($decoded[0])));
+        $this->assertEquals('god', Str::decodeHex($decoded[1]));
+        $this->assertEquals('cat', Str::decodeHex($decoded[2]));
 
-        $encoded = '0x' . $rlp->encode(['0xabcd', '0xdeff', '0xaaaa'])->toString('hex');
+        $encoded = '0x' . $rlp->encode(['0xabcd', '0xdeff', '0xaaaa']);
         $decoded = $rlp->decode($encoded);
         $this->assertEquals(3, count($decoded));
-        $this->assertEquals('abcd', $decoded[0]->toString('hex'));
-        $this->assertEquals('deff', $decoded[1]->toString('hex'));
-        $this->assertEquals('aaaa', $decoded[2]->toString('hex'));
+        $this->assertEquals('abcd', $decoded[0]);
+        $this->assertEquals('deff', $decoded[1]);
+        $this->assertEquals('aaaa', $decoded[2]);
+
+        $encoded = '0x' . $rlp->encode([199999, 1]);
+        $decoded = $rlp->decode($encoded);
+        $this->assertEquals(2, count($decoded));
+        $this->assertEquals(199999, hexdec($decoded[0]));
+        $this->assertEquals(1, hexdec($decoded[1]));
+
     }
 
     /**
@@ -59,11 +67,11 @@ class RLPTest extends TestCase
 
         $this->assertTrue($rlptestJson !== false);
         $rlptest = json_decode($rlptestJson, true);
-        
+
         foreach ($rlptest as $test) {
             $encoded = $rlp->encode($test['in']);
 
-            $this->assertEquals($test['out'], $encoded->toString('hex'));
+            $this->assertEquals($test['out'], $encoded);
         }
     }
 
@@ -77,14 +85,14 @@ class RLPTest extends TestCase
     public function testIssue14()
     {
         $rlp = $this->rlp;
-        $this->assertEquals('c0', $rlp->encode([])->toString('hex'));
-        $this->assertEquals('80', $rlp->encode(0)->toString('hex'));
-        $this->assertEquals('80', $rlp->encode(0x0)->toString('hex'));
-        $this->assertEquals('80', $rlp->encode(-1)->toString('hex'));
-        $this->assertEquals('80', $rlp->encode(-2)->toString('hex'));
-        $this->assertEquals('30', $rlp->encode('0')->toString('hex'));
-        $this->assertEquals('00', $rlp->encode('0x0')->toString('hex'));
-        $this->assertEquals('80', $rlp->encode(null)->toString('hex'));
+        $this->assertEquals('c0', $rlp->encode([]));
+        $this->assertEquals('80', $rlp->encode(0));
+        $this->assertEquals('80', $rlp->encode(0x0));
+        $this->assertEquals('80', $rlp->encode(-1));
+        $this->assertEquals('80', $rlp->encode(-2));
+        $this->assertEquals('30', $rlp->encode('0'));
+        $this->assertEquals('00', $rlp->encode('0x0'));
+        $this->assertEquals('80', $rlp->encode(null));
     }
 
     /**
@@ -100,11 +108,11 @@ class RLPTest extends TestCase
 
     //     $this->assertTrue($invalidrlptestJson !== false);
     //     $invalidrlptest = json_decode($invalidrlptestJson, true);
-        
+
     //     foreach ($invalidrlptest as $test) {
     //         $encoded = $rlp->encode($test['in']);
 
-    //         $this->assertEquals($test['out'], $encoded->toString('hex'));
+    //         $this->assertEquals($test['out'], $encoded);
     //     }
     // }
 }
