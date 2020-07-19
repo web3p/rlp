@@ -11,12 +11,21 @@
 
 namespace Web3p\RLP\Types;
 
+
+/**
+ * It's a numeric type instance for ethereum recursive length encoding.
+ * Note: there is only static function in this class.
+ * 
+ * @author Peter Lai <alk03073135@gmail.com>
+ * @link https://www.web3p.xyz
+ * @filesource https://github.com/web3p/rlp
+ */
 class Numeric
 {
     /**
-     * encode
+     * Return hex encoded of numeric string.
      *
-     * @param string $input
+     * @param string $input numeric string
      * @return string encoded hex of input
      */
     static function encode(string $input)

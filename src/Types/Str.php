@@ -13,14 +13,22 @@ namespace Web3p\RLP\Types;
 
 use InvalidArgumentException;
 
+/**
+ * It's a string type instance for ethereum recursive length encoding.
+ * Note: there is only static function in this class.
+ * 
+ * @author Peter Lai <alk03073135@gmail.com>
+ * @link https://www.web3p.xyz
+ * @filesource https://github.com/web3p/rlp
+ */
 class Str
 {
     /**
-     * encode
+     * Return encoded string of given input and encoding.
      *
-     * @param string $input
-     * @param string $encoding
-     * @return string encoded hex of input
+     * @param string $input input
+     * @param string $encoding encoding
+     * @return string encoded string of given input and encoding
      */
     static function encode(string $input, string $encoding='utf8')
     {
@@ -57,11 +65,10 @@ class Str
     }
 
     /**
-     * decodeHex
-     * same with hex2bin
+     * Return decoded hex encoded of given input, same with hex2bin
      *
-     * @param string $input
-     * @return string decoded hex of input
+     * @param string $input hex encoded string
+     * @return string decoded of hex encoded string
      */
     static function decodeHex(string $input)
     {
