@@ -34,7 +34,7 @@ class RLPTest extends TestCase
         ], [
             "decoded" => "0x00",
             "encoded" => "00",
-            "rlpdecoded" => "0"
+            "rlpdecoded" => "00"
         ], [
             "decoded" => "0x0400",
             "encoded" => "820400",

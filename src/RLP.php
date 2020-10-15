@@ -113,18 +113,19 @@ class RLP
      */
     protected function decodeData(string $input)
     {
-        $firstByte = hexdec(mb_substr($input, 0, 2));
+        $firstByte = mb_substr($input, 0, 2);
+        $firstByteDec = hexdec($firstByte);
 
-        if ($firstByte <= 0x7f) {
+        if ($firstByteDec <= 0x7f) {
             return [
-                'data' => dechex($firstByte),
+                'data' => $firstByte,
                 'remainder' => mb_substr($input, 2)
             ];
-        } elseif ($firstByte <= 0xb7) {
-            $length = $firstByte - 0x7f;
+        } elseif ($firstByteDec <= 0xb7) {
+            $length = $firstByteDec - 0x7f;
             $data = '';
 
-            if ($firstByte !== 0x80) {
+            if ($firstByteDec !== 0x80) {
                 $data = mb_substr($input, 2, ($length - 1) * 2);
             }
             $firstByteData = hexdec(mb_substr($data, 0, 2));
@@ -135,8 +136,8 @@ class RLP
                 'data' => $data,
                 'remainder' => mb_substr($input, $length * 2)
             ];
-        } elseif ($firstByte <= 0xbf) {
-            $llength = $firstByte - 0xb6;
+        } elseif ($firstByteDec <= 0xbf) {
+            $llength = $firstByteDec - 0xb6;
             $hexLength = mb_substr($input, 2, ($llength - 1) * 2);
 
             if ($hexLength === '00') {
@@ -152,8 +153,8 @@ class RLP
                 'data' => $data,
                 'remainder' => mb_substr($input, ($length + $llength) * 2)
             ];
-        } elseif ($firstByte <= 0xf7) {
-            $length = $firstByte - 0xbf;
+        } elseif ($firstByteDec <= 0xf7) {
+            $length = $firstByteDec - 0xbf;
             $innerRemainder = mb_substr($input, 2, ($length - 1) * 2);
             $decoded = [];
 
@@ -167,7 +168,7 @@ class RLP
                 'remainder' => mb_substr($input, $length * 2)
             ];
         } else {
-            $llength = $firstByte - 0xf6;
+            $llength = $firstByteDec - 0xf6;
             $hexLength = mb_substr($input, 2, ($llength - 1) * 2);
             $decoded = [];
 
