@@ -13,7 +13,6 @@ namespace Web3p\RLP;
 
 use InvalidArgumentException;
 use RuntimeException;
-use Web3p\RLP\Buffer;
 use Web3p\RLP\Types\Str;
 use Web3p\RLP\Types\Numeric;
 
@@ -64,10 +63,10 @@ class RLP
     /**
      * Return RLP encoded of the given inputs.
      *
-     * @param array $inputs array of data you want to RLP encode
+     * @param mixed $inputs mixed type of data you want to RLP encode
      * @return string RLP encoded hex string of inputs
      */
-    public function encode(array $inputs)
+    public function encode($inputs)
     {
         $output = '';
         if (is_array($inputs)) {
@@ -80,7 +79,8 @@ class RLP
         $input = $this->encodeInput($inputs);
         $length = mb_strlen($input) / 2;
 
-        if ($length === 1 && hexdec(mb_substr($input, 0, 2)) < 128) {
+        // first byte < 0x80
+        if ($length === 1 && mb_substr($input, 0, 1) < 8) {
             return $input;
         }
         return $this->encodeLength($length, 128) . $input;
