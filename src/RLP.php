@@ -144,7 +144,7 @@ class RLP
                 throw new RuntimeException('Invalid RLP.');
             }
             $length = hexdec($hexLength);
-            $data = mb_substr($input, $llength * 2, ($length + $llength - 1) * 2);
+            $data = mb_substr($input, $llength * 2, $length * 2);
 
             if (mb_strlen($data) < $length * 2) {
                 throw new RuntimeException('Invalid RLP.');
