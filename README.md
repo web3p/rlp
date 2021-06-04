@@ -1,7 +1,7 @@
 # rlp
 Recursive Length Prefix Encoding in PHP.
 
-[![Build Status](https://travis-ci.org/web3p/rlp.svg?branch=master)](https://travis-ci.org/web3p/rlp)
+[![PHP](https://github.com/web3p/rlp/actions/workflows/php.yml/badge.svg)](https://github.com/web3p/rlp/actions/workflows/php.yml)
 [![codecov](https://codecov.io/gh/web3p/rlp/branch/master/graph/badge.svg)](https://codecov.io/gh/web3p/rlp)
 [![Licensed under the MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/web3p/rlp/blob/master/LICENSE)
 
