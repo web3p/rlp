@@ -80,7 +80,7 @@ class RLP
         $length = mb_strlen($input) / 2;
 
         // first byte < 0x80
-        if ($length === 1 && mb_substr($input, 0, 1) < '8') {
+        if ($length === 1 && hexdec(mb_substr($input, 0, 2)) < 0x80) {
             return $input;
         }
         return $this->encodeLength($length, 128) . $input;
