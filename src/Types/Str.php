@@ -34,7 +34,15 @@ class Str
     {
         $output = '';
         switch ($encoding) {
-            case 'hex':
+			// fixed length hex
+			case 'hex_fixed':
+				if (strpos($input, '0x') === 0) {
+					$input = str_replace('0x', '', $input);
+				}
+				$output = $input;
+				break;
+			
+			case 'hex':
             if (strpos($input, '0x') === 0) {
                 $input = str_replace('0x', '', $input);
             }
