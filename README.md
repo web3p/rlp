@@ -75,6 +75,16 @@ $rlp = new RLP;
 $encoded = $rlp->encode(['web3p', 'ethereum', 'solidity']);
 ```
 
+* Encode ethereum address
+
+There's an ability to force type of specific encoded item. For ethereum addresses, leading zeros can't be removed as these are specified as 20 byte array (not a string). To properly encode it you can pass it as hex_fixed.
+```
+use Web3p\RLP\RLP;
+
+$rlp = new RLP;
+$encoded = $rlp->encode(['web3p', '0x4f15a948f2e2a13731c9aa3cef52cdf8d3e6a120', 'test', '0x4f15a948f2e2a13731c9aa3cef52cdf8d3e6a120'], [1=>'hex_fixed', 3=>'hex_fixed']);
+```
+
 #### decode
 
 Returns array recursive length prefix decoding of given data.
