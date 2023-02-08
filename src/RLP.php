@@ -64,19 +64,20 @@ class RLP
      * Return RLP encoded of the given inputs.
      *
      * @param mixed $inputs mixed type of data you want to RLP encode
+	 * @param mixed $types mixed type of data you want to encode, if there's no $types[X] for corresponding $inputs[X] - will be autodetected
      * @return string RLP encoded hex string of inputs
      */
-    public function encode($inputs)
+    public function encode($inputs, $types = false)
     {
         $output = '';
         if (is_array($inputs)) {
-            foreach ($inputs as $input) {
-                $output .= $this->encode($input);
+            foreach ($inputs as $k=>$input) {
+                $output .= $this->encode($input, $types[$k] ?? false);
             }
             $length = mb_strlen($output) / 2;
             return $this->encodeLength($length, 192) . $output;
         }
-        $input = $this->encodeInput($inputs);
+        $input = $this->encodeInput($inputs, $types);
         $length = mb_strlen($input) / 2;
 
         // first byte < 0x80
@@ -247,20 +248,24 @@ class RLP
      * Main encode function to transform data to hex encoded string.
      *
      * @param mixed $input data
+	 * @param string type data type to be encoded for not-numeric type
      * @return string hex encoded string
      */
-    protected function encodeInput($input)
-    {
-        if (is_string($input)) {
-            if (strpos($input, '0x') === 0) {
-                return Str::encode($input, 'hex');
-            }
-            return Str::encode($input);
-        } elseif (is_numeric($input)) {
-            return Numeric::encode($input);
-        } elseif ($input === null) {
-            return '';
-        }
-        throw new InvalidArgumentException('The input type didn\'t support.');
-    }
+	protected function encodeInput($input, $type = false)
+	{
+		if (is_string($input)) {
+			if ($type !== false) {
+				return Str::encode($input, $type);
+			}
+			if (strpos($input, '0x') === 0) {
+				return Str::encode($input, 'hex');
+			}
+			return Str::encode($input);
+		} elseif (is_numeric($input)) {
+			return Numeric::encode($input);
+		} elseif ($input === null) {
+			return '';
+		}
+		throw new InvalidArgumentException('The input type didn\'t support.');
+	}
 }
