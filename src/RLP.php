@@ -95,12 +95,14 @@ class RLP
     public function decode(string $input)
     {
         if (strpos($input, '0x') === 0) {
-            $input = str_replace('0x', '', $input);
+            $input = (string) substr($input, 2);
         }
-        if (!preg_match('/[a-f0-9]/i', $input)) {
+        if (!preg_match('/\A[a-f0-9]+\z/i', $input)) {
             throw new InvalidArgumentException('The input type didn\'t support.');
         }
-        $input = $this->padToEven($input);
+        if (strlen($input) % 2 !== 0) {
+            throw new InvalidArgumentException('Invalid hex string: odd length.');
+        }
         $decoded = $this->decodeData($input);
 
         if (mb_strlen($decoded['remainder']) !== 0) {

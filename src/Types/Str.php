@@ -36,7 +36,10 @@ class Str
         switch ($encoding) {
             case 'hex':
             if (strpos($input, '0x') === 0) {
-                $input = str_replace('0x', '', $input);
+                $input = (string) substr($input, 2);
+            }
+            if (!preg_match('/\A[a-f0-9]*\z/i', $input)) {
+                throw new InvalidArgumentException('Invalid hex string.');
             }
             if (mb_strlen($input) > 2) {
                 $input = ltrim($input, '0');
@@ -76,9 +79,9 @@ class Str
     static function decodeHex(string $input)
     {
         if (strpos($input, '0x') === 0) {
-            $input = str_replace('0x', '', $input);
+            $input = (string) substr($input, 2);
         }
-        if (!preg_match('/[a-f0-9]+/i', $input)) {
+        if (!preg_match('/\A[a-f0-9]+\z/i', $input)) {
             throw new InvalidArgumentException('Invalid hex string.');
         }
         $inputLen = mb_strlen($input);
