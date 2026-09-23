@@ -181,6 +181,55 @@ class RLPTest extends TestCase
     }
 
     /**
+     * truncatedOrTrailingRlpProvider
+     *
+     * @return array
+     */
+    public function truncatedOrTrailingRlpProvider()
+    {
+        return [
+            // truncated short string
+            'short string missing payload' => ['81'],
+            'short string missing byte' => ['83646f'],
+            // truncated long string
+            'long string missing length' => ['b8'],
+            'long string partial length' => ['b901'],
+            'long string missing byte' => ['b838' . str_repeat('61', 55)],
+            'long string length 256, 10 bytes' => ['b90100' . str_repeat('61', 10)],
+            // truncated short list
+            'short list missing payload' => ['c3'],
+            'short list missing byte' => ['c38364'],
+            // child longer than its parent list
+            'child overruns list' => ['c2836400'],
+            'nested child overruns list' => ['c4c3836400'],
+            // truncated long list
+            'long list missing length' => ['f8'],
+            'long list missing byte' => ['f838' . str_repeat('61', 55)],
+            // trailing data after the top-level item
+            'single byte + trailing' => ['0102'],
+            'empty string + trailing' => ['8000'],
+            'short string + trailing' => ['83646f6700'],
+            'empty list + trailing' => ['c000'],
+            'short list + trailing' => ['c3826162c0'],
+            'long string + trailing' => ['b838' . str_repeat('61', 56) . '01'],
+            'long list + trailing' => ['f838' . str_repeat('61', 56) . '01'],
+        ];
+    }
+
+    /**
+     * testDecodeTruncatedOrTrailingRlp
+     *
+     * @dataProvider truncatedOrTrailingRlpProvider
+     * @param string $encoded
+     * @return void
+     */
+    public function testDecodeTruncatedOrTrailingRlp(string $encoded)
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->rlp->decode('0x' . $encoded);
+    }
+
+    /**
      * testInvalidRlp
      * Try to figure out what invalidrlptest.json is.
      * 

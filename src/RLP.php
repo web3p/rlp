@@ -102,6 +102,10 @@ class RLP
         }
         $input = $this->padToEven($input);
         $decoded = $this->decodeData($input);
+
+        if (mb_strlen($decoded['remainder']) !== 0) {
+            throw new RuntimeException('Invalid RLP: unexpected data after the RLP payload.');
+        }
         return $decoded['data'];
     }
 
@@ -125,6 +129,9 @@ class RLP
             $length = $firstByteDec - 0x7f;
             $data = '';
 
+            if (mb_strlen($input) < $length * 2) {
+                throw new RuntimeException('Invalid RLP: data is shorter than the declared length.');
+            }
             if ($firstByteDec !== 0x80) {
                 $data = mb_substr($input, 2, ($length - 1) * 2);
             }
@@ -138,6 +145,10 @@ class RLP
             ];
         } elseif ($firstByteDec <= 0xbf) {
             $llength = $firstByteDec - 0xb6;
+
+            if (mb_strlen($input) < $llength * 2) {
+                throw new RuntimeException('Invalid RLP: data is shorter than the declared length.');
+            }
             $hexLength = mb_substr($input, 2, ($llength - 1) * 2);
 
             if ($hexLength === '00') {
@@ -155,6 +166,10 @@ class RLP
             ];
         } elseif ($firstByteDec <= 0xf7) {
             $length = $firstByteDec - 0xbf;
+
+            if (mb_strlen($input) < $length * 2) {
+                throw new RuntimeException('Invalid RLP: data is shorter than the declared length.');
+            }
             $innerRemainder = mb_substr($input, 2, ($length - 1) * 2);
             $decoded = [];
 
