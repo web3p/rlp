@@ -4,6 +4,7 @@ namespace Test\Unit;
 
 use Test\TestCase;
 use Web3p\RLP\Types\Str;
+use Web3p\RLP\Types\Numeric;
 
 class RLPTest extends TestCase
 {
@@ -108,11 +109,93 @@ class RLPTest extends TestCase
         $this->assertEquals("c0", $rlp->encode([]));
         $this->assertEquals("80", $rlp->encode(0));
         $this->assertEquals("80", $rlp->encode(0x0));
-        $this->assertEquals("80", $rlp->encode(-1));
-        $this->assertEquals("80", $rlp->encode(-2));
         $this->assertEquals("30", $rlp->encode("0"));
         $this->assertEquals("00", $rlp->encode("0x0"));
         $this->assertEquals("80", $rlp->encode(null));
+    }
+
+    /**
+     * testEncodeNumeric
+     *
+     * @return void
+     */
+    public function testEncodeNumeric()
+    {
+        $rlp = $this->rlp;
+
+        $this->assertEquals("80", $rlp->encode(0));
+        $this->assertEquals("01", $rlp->encode(1));
+        $this->assertEquals("7f", $rlp->encode(127));
+        $this->assertEquals("8180", $rlp->encode(128));
+        $this->assertEquals("81ff", $rlp->encode(255));
+        $this->assertEquals("820100", $rlp->encode(256));
+        $this->assertEquals("820400", $rlp->encode(1024));
+        $this->assertEquals("887fffffffffffffff", $rlp->encode(PHP_INT_MAX));
+        // integral floats within the integer range
+        $this->assertEquals("80", $rlp->encode(0.0));
+        $this->assertEquals("80", $rlp->encode(-0.0));
+        $this->assertEquals("820400", $rlp->encode(1024.0));
+        $this->assertEquals("87038d7ea4c68000", $rlp->encode(1e15));
+
+        $this->assertEquals("", Numeric::encode(""));
+        $this->assertEquals("0400", Numeric::encode("1024"));
+    }
+
+    /**
+     * invalidNumericProvider
+     *
+     * @return array
+     */
+    public function invalidNumericProvider()
+    {
+        return [
+            'negative int' => [-1],
+            'negative int 2' => [-2],
+            'PHP_INT_MIN' => [PHP_INT_MIN],
+            'fraction' => [1.5],
+            'negative fraction' => [-1.5],
+            'fraction below 1' => [0.1],
+            'float above PHP_INT_MAX' => [1e20],
+            'float equal to 2^63' => [(float) PHP_INT_MAX],
+            'INF' => [INF],
+            'negative INF' => [-INF],
+            'NAN' => [NAN],
+        ];
+    }
+
+    /**
+     * testEncodeInvalidNumeric
+     *
+     * @dataProvider invalidNumericProvider
+     * @param int|float $input
+     * @return void
+     */
+    public function testEncodeInvalidNumeric($input)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->rlp->encode($input);
+    }
+
+    /**
+     * testNumericEncodeInvalidString
+     *
+     * @return void
+     */
+    public function testNumericEncodeInvalidString()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Numeric::encode("abc");
+    }
+
+    /**
+     * testNumericEncodeTooLargeString
+     *
+     * @return void
+     */
+    public function testNumericEncodeTooLargeString()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Numeric::encode("99999999999999999999");
     }
 
     /**
