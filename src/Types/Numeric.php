@@ -11,6 +11,7 @@
 
 namespace Web3p\RLP\Types;
 
+use InvalidArgumentException;
 
 /**
  * It's a numeric type instance for ethereum recursive length encoding.
@@ -30,14 +31,28 @@ class Numeric
      */
     static function encode(string $input)
     {
-        if (!$input || $input < 0) {
+        if ($input === '') {
             return '';
         }
-        if (is_float($input)) {
-            $input = number_format($input, 0, '', '');
+        if (!is_numeric($input)) {
+            throw new InvalidArgumentException('Invalid numeric value.');
         }
-        $intInput = strval($input);
-        $output = dechex($intInput);
+        // int for integer strings in range, float otherwise
+        $number = $input + 0;
+
+        if (is_float($number)) {
+            if ($number != floor($number) || $number >= (float) PHP_INT_MAX || $number < 0) {
+                throw new InvalidArgumentException('Numeric value must be a non-negative integer not greater than PHP_INT_MAX, use a hex string for larger values.');
+            }
+            $number = (int) $number;
+        }
+        if ($number < 0) {
+            throw new InvalidArgumentException('Numeric value must be a non-negative integer not greater than PHP_INT_MAX, use a hex string for larger values.');
+        }
+        if ($number === 0) {
+            return '';
+        }
+        $output = dechex($number);
         $outputLen = mb_strlen($output);
         if ($outputLen > 0 && $outputLen % 2 !== 0) {
             return '0' . $output;
