@@ -47,13 +47,13 @@ class Str
             case 'ascii':
             $outputs = array_map('ord', str_split($input, 1));
             foreach ($outputs as $src) {
-                $output .= dechex($src);
+                $output .= sprintf('%02x', $src);
             }
             break;
             case 'utf8':
             $outputs = unpack('C*', $input);
             foreach ($outputs as $src) {
-                $output .= dechex($src);
+                $output .= sprintf('%02x', $src);
             }
             break;
             default:
