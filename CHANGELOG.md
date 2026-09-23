@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 (unreleased)
+## 0.4.0
 
 This release fixes several encoding and decoding bugs and makes the
 decoder strict. It contains breaking changes, see below.
