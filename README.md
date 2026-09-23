@@ -37,7 +37,7 @@ use Web3p\RLP\Types\Str;
 $rlp = new RLP;
 $encoded = $rlp->encode(['dog']);
 
-// only accept 0x prefixed hex string
+// accept hex string with or without 0x prefix
 $decoded = $rlp->decode('0x' . $encoded);
 
 // show 646f67
@@ -60,9 +60,16 @@ Returns recursive length prefix encoding of given inputs.
 
 `encode(mixed $inputs)`
 
-Mixed inputs - array of string, integer or numeric string.
+Mixed inputs - string, integer, null, or (nested) array of them.
 
-> Note: output is not zero prefixed.
+* Strings starting with `0x` are encoded as hex bytes, byte for byte (leading zero bytes are kept). Strip leading zeros yourself for integer quantities, e.g. `0x00cb9d` should be passed as `0xcb9d`.
+* Other strings are encoded as their raw bytes, numeric strings included (`'1024'` is encoded as the text `1024`).
+* Integers must be non-negative and not greater than `PHP_INT_MAX`; pass larger values as hex strings.
+* `null` is encoded as an empty string, arrays are encoded as lists.
+
+Throws `InvalidArgumentException` for invalid hex strings, negative or fractional numbers and unsupported types.
+
+> Note: output is not 0x prefixed.
 
 ###### Example
 
@@ -77,13 +84,15 @@ $encoded = $rlp->encode(['web3p', 'ethereum', 'solidity']);
 
 #### decode
 
-Returns array recursive length prefix decoding of given data.
+Returns recursive length prefix decoding of given data: a hex string for a string item, or a (nested) array for a list.
 
 `decode(string $input)`
 
-String input - recursive length prefix encoded string.
+String input - recursive length prefix encoded hex string, with or without `0x` prefix.
 
-> Note: output is not zero prefixed.
+Throws `InvalidArgumentException` if the input is not an even-length hex string, and `RuntimeException` if it is not valid canonical RLP (truncated data, trailing data or non-canonical lengths).
+
+> Note: output is not 0x prefixed.
 
 ###### Example
 

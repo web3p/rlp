@@ -41,7 +41,7 @@ use Web3p\RLP\Types\Numeric;
  * $rlp = new RLP;
  * $encoded = $rlp->encode(['dog']);
  * 
- * // only accept 0x prefixed hex string
+ * // accept hex string with or without 0x prefix
  * $decoded = $rlp->decode('0x' . $encoded);
  * 
  * // show 646f67
@@ -63,8 +63,14 @@ class RLP
     /**
      * Return RLP encoded of the given inputs.
      *
+     * Strings starting with 0x are encoded as hex bytes, other strings as
+     * their raw bytes (numeric strings included). Integers must be
+     * non-negative and not greater than PHP_INT_MAX. Null is encoded as
+     * an empty string. Arrays are encoded as lists.
+     *
      * @param mixed $inputs mixed type of data you want to RLP encode
-     * @return string RLP encoded hex string of inputs
+     * @return string RLP encoded hex string of inputs, without 0x prefix
+     * @throws InvalidArgumentException if an input is invalid or not supported
      */
     public function encode($inputs)
     {
@@ -89,8 +95,11 @@ class RLP
     /**
      * Return RLP decoded of the given hex encoded data.
      *
-     * @param string $input hex encoded data
-     * @return array decoded data
+     * @param string $input hex encoded data, with or without 0x prefix
+     * @return array|string decoded data: a hex string (without 0x prefix)
+     *                      for a string item, or a nested array for a list
+     * @throws InvalidArgumentException if the input is not an even-length hex string
+     * @throws RuntimeException if the input is not valid canonical RLP
      */
     public function decode(string $input)
     {
