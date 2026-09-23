@@ -116,6 +116,45 @@ class RLPTest extends TestCase
     }
 
     /**
+     * testLongList
+     * Lists with payload >= 56 bytes (prefix 0xf8-0xff) followed by siblings.
+     *
+     * @return void
+     */
+    public function testLongList()
+    {
+        $rlp = $this->rlp;
+        $longList = array_fill(0, 56, 'a');
+        $longListDecoded = array_fill(0, 56, '61');
+        // f838 + 56 x 61
+        $longListEncoded = 'f838' . str_repeat('61', 56);
+
+        $testCases = [
+            [
+                // [[56 x 'a'], 'b']: payload 58 + 1 = 59 bytes
+                "decoded" => [$longList, 'b'],
+                "encoded" => 'f83b' . $longListEncoded . '62',
+                "rlpdecoded" => [$longListDecoded, '62']
+            ], [
+                // [[56 x 'a'], [56 x 'a']]: payload 58 + 58 = 116 bytes
+                "decoded" => [$longList, $longList],
+                "encoded" => 'f874' . $longListEncoded . $longListEncoded,
+                "rlpdecoded" => [$longListDecoded, $longListDecoded]
+            ], [
+                // ['b', [56 x 'a'], 'c']: payload 1 + 58 + 1 = 60 bytes
+                "decoded" => ['b', $longList, 'c'],
+                "encoded" => 'f83c62' . $longListEncoded . '63',
+                "rlpdecoded" => ['62', $longListDecoded, '63']
+            ]
+        ];
+
+        foreach ($testCases as $testCase) {
+            $this->assertEquals($testCase["encoded"], $rlp->encode($testCase["decoded"]));
+            $this->assertEquals($testCase["rlpdecoded"], $rlp->decode("0x" . $testCase["encoded"]));
+        }
+    }
+
+    /**
      * testInvalidRlp
      * Try to figure out what invalidrlptest.json is.
      * 

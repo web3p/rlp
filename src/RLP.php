@@ -181,7 +181,7 @@ class RLP
             if ($totalLength * 2 > mb_strlen($input)) {
                 throw new RuntimeException('Invalid RLP: total length is bigger than data length.');
             }
-            $innerRemainder = $hexLength = mb_substr($input, $llength * 2, $totalLength * 2);
+            $innerRemainder = mb_substr($input, $llength * 2, $length * 2);
 
             if (mb_strlen($innerRemainder) === 0) {
                 throw new RuntimeException('Invalid RLP: list has invalid length.');
@@ -194,7 +194,7 @@ class RLP
             }
             return [
                 'data' => $decoded,
-                'remainder' => mb_substr($input, $length * 2)
+                'remainder' => mb_substr($input, $totalLength * 2)
             ];
         }
     }
