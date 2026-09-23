@@ -45,7 +45,8 @@ class Str
 
             break;
             case 'ascii':
-            $outputs = array_map('ord', str_split($input, 1));
+            // str_split('') returns [''] before PHP 8.2
+            $outputs = ($input === '') ? [] : array_map('ord', str_split($input, 1));
             foreach ($outputs as $src) {
                 $output .= sprintf('%02x', $src);
             }

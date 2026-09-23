@@ -255,6 +255,10 @@ class RLPTest extends TestCase
 
         $this->assertEquals("0102", Str::encode("\x01\x02"));
         $this->assertEquals("0102", Str::encode("\x01\x02", 'ascii'));
+        // empty string is empty in every encoding (str_split('') returns [''] before PHP 8.2)
+        $this->assertEquals("", Str::encode(""));
+        $this->assertEquals("", Str::encode("", 'ascii'));
+        $this->assertEquals("", Str::encode("0x", 'hex'));
 
         // every byte value 0x00-0xff: 256-byte payload => b9 0100
         $allBytes = implode('', array_map('chr', range(0, 255)));
