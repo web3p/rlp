@@ -153,10 +153,17 @@ class RLP
             }
             $hexLength = mb_substr($input, 2, ($llength - 1) * 2);
 
-            if ($hexLength === '00') {
-                throw new RuntimeException('Invalid RLP.');
+            if (strpos($hexLength, '00') === 0) {
+                throw new RuntimeException('Invalid RLP: non-canonical length (leading zero).');
             }
             $length = hexdec($hexLength);
+
+            if ($length < 56) {
+                throw new RuntimeException('Invalid RLP: non-canonical length (less than 56 in long form).');
+            }
+            if (($llength + $length) * 2 > mb_strlen($input)) {
+                throw new RuntimeException('Invalid RLP: data is shorter than the declared length.');
+            }
             $data = mb_substr($input, $llength * 2, $length * 2);
 
             if (mb_strlen($data) < $length * 2) {
@@ -189,10 +196,14 @@ class RLP
             $hexLength = mb_substr($input, 2, ($llength - 1) * 2);
             $decoded = [];
 
-            if ($hexLength === '00') {
-                throw new RuntimeException('Invalid RLP.');
+            if (strpos($hexLength, '00') === 0) {
+                throw new RuntimeException('Invalid RLP: non-canonical length (leading zero).');
             }
             $length = hexdec($hexLength);
+
+            if ($length < 56) {
+                throw new RuntimeException('Invalid RLP: non-canonical length (less than 56 in long form).');
+            }
             $totalLength = $llength + $length;
 
             if ($totalLength * 2 > mb_strlen($input)) {

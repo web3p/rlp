@@ -456,23 +456,92 @@ class RLPTest extends TestCase
     }
 
     /**
-     * testInvalidRlp
-     * Try to figure out what invalidrlptest.json is.
-     * 
+     * testCanonicalLength
+     * Shortest-form lengths at the 55/56 boundary must still decode.
+     *
      * @return void
      */
-    // public function testInvalidRlp()
-    // {
-    //     $rlp = $this->rlp;
-    //     $invalidrlptestJson = file_get_contents(sprintf("%s%sinvalidrlptest.json", __DIR__, DIRECTORY_SEPARATOR));
+    public function testCanonicalLength()
+    {
+        $rlp = $this->rlp;
 
-    //     $this->assertTrue($invalidrlptestJson !== false);
-    //     $invalidrlptest = json_decode($invalidrlptestJson, true);
+        // 55-byte string: short form b7
+        $this->assertEquals(str_repeat('61', 55), $rlp->decode('0xb7' . str_repeat('61', 55)));
+        // 56-byte string: long form b838
+        $this->assertEquals(str_repeat('61', 56), $rlp->decode('0xb838' . str_repeat('61', 56)));
+        // 55-byte list payload: short form f7
+        $this->assertEquals(array_fill(0, 55, '61'), $rlp->decode('0xf7' . str_repeat('61', 55)));
+        // 56-byte list payload: long form f838
+        $this->assertEquals(array_fill(0, 56, '61'), $rlp->decode('0xf838' . str_repeat('61', 56)));
+        // 256-byte string: two length bytes b90100
+        $this->assertEquals(str_repeat('61', 256), $rlp->decode('0xb90100' . str_repeat('61', 256)));
+    }
 
-    //     foreach ($invalidrlptest as $test) {
-    //         $encoded = $rlp->encode($test["in"]);
+    /**
+     * nonCanonicalLengthProvider
+     *
+     * @return array
+     */
+    public function nonCanonicalLengthProvider()
+    {
+        return [
+            // long form used for a length < 56
+            'long string, length 1' => ['b80161'],
+            'long string, length 55' => ['b837' . str_repeat('61', 55)],
+            'long list, length 1' => ['f801c0'],
+            'long list, length 55' => ['f837' . str_repeat('61', 55)],
+            // length with a leading zero byte
+            'long string, length 00 38' => ['b90038' . str_repeat('61', 56)],
+            'long string, length 00 01 00' => ['ba000100' . str_repeat('61', 256)],
+            'long list, length 00 38' => ['f90038' . str_repeat('61', 56)],
+            // length that does not fit in a PHP integer
+            'long string, huge length' => ['bf7fffffffffffffff00'],
+            'long string, length above PHP_INT_MAX' => ['bfffffffffffffffff00'],
+            'long list, length above PHP_INT_MAX' => ['ffffffffffffffffff00'],
+        ];
+    }
 
-    //         $this->assertEquals($test["out"], $encoded);
-    //     }
-    // }
+    /**
+     * testDecodeNonCanonicalLength
+     *
+     * @dataProvider nonCanonicalLengthProvider
+     * @param string $encoded
+     * @return void
+     */
+    public function testDecodeNonCanonicalLength(string $encoded)
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->rlp->decode('0x' . $encoded);
+    }
+
+    /**
+     * invalidRlpProvider
+     * Vectors from invalidrlptest.json, "out" is the invalid encoding.
+     *
+     * @return array
+     */
+    public function invalidRlpProvider()
+    {
+        $invalidrlptestJson = file_get_contents(sprintf("%s%sinvalidrlptest.json", __DIR__, DIRECTORY_SEPARATOR));
+        $invalidrlptest = json_decode($invalidrlptestJson, true);
+        $cases = [];
+
+        foreach ($invalidrlptest as $name => $test) {
+            $cases[$name] = [$test["out"]];
+        }
+        return $cases;
+    }
+
+    /**
+     * testInvalidRlp
+     *
+     * @dataProvider invalidRlpProvider
+     * @param string $encoded
+     * @return void
+     */
+    public function testInvalidRlp(string $encoded)
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->rlp->decode('0x' . $encoded);
+    }
 }
