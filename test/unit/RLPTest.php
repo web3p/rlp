@@ -230,6 +230,120 @@ class RLPTest extends TestCase
     }
 
     /**
+     * testHexInput
+     * Hex input must contain only hex digits after an optional 0x prefix.
+     *
+     * @return void
+     */
+    public function testHexInput()
+    {
+        $rlp = $this->rlp;
+
+        // still accepted
+        $this->assertEquals([], $rlp->decode("0xc0"));
+        $this->assertEquals([], $rlp->decode("c0"));
+        $this->assertEquals([], $rlp->decode("0xC0"));
+        $this->assertEquals("80", $rlp->encode("0x"));
+        $this->assertEquals("00", $rlp->encode("0x0"));
+        $this->assertEquals("dog", Str::decodeHex("0x646f67"));
+        $this->assertEquals("dog", Str::decodeHex("646f67"));
+    }
+
+    /**
+     * invalidHexDecodeProvider
+     *
+     * @return array
+     */
+    public function invalidHexDecodeProvider()
+    {
+        return [
+            'empty' => [''],
+            'prefix only' => ['0x'],
+            'invalid chars' => ['0x8zz1'],
+            'invalid chars after valid item' => ['0xc0zz'],
+            'invalid chars without prefix' => ['zz'],
+            'double prefix' => ['0x0xc0'],
+            'uppercase prefix' => ['0Xc0'],
+            'embedded prefix' => ['0xc10x01'],
+            'whitespace' => ['0x c0'],
+            'trailing newline' => ["0xc0\n"],
+            'odd length' => ['0x123'],
+            'odd length single digit' => ['0x8'],
+        ];
+    }
+
+    /**
+     * testDecodeInvalidHex
+     *
+     * @dataProvider invalidHexDecodeProvider
+     * @param string $input
+     * @return void
+     */
+    public function testDecodeInvalidHex(string $input)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->rlp->decode($input);
+    }
+
+    /**
+     * invalidHexEncodeProvider
+     *
+     * @return array
+     */
+    public function invalidHexEncodeProvider()
+    {
+        return [
+            'invalid chars' => ['0xzz'],
+            'text with 0x prefix' => ['0xhello'],
+            'invalid char in middle' => ['0x12g4'],
+            'double prefix' => ['0x0x12'],
+            'trailing newline' => ["0x12\n"],
+        ];
+    }
+
+    /**
+     * testEncodeInvalidHex
+     *
+     * @dataProvider invalidHexEncodeProvider
+     * @param string $input
+     * @return void
+     */
+    public function testEncodeInvalidHex(string $input)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->rlp->encode($input);
+    }
+
+    /**
+     * invalidHexDecodeHexProvider
+     *
+     * @return array
+     */
+    public function invalidHexDecodeHexProvider()
+    {
+        return [
+            'empty' => [''],
+            'prefix only' => ['0x'],
+            'invalid chars' => ['0xzz'],
+            'invalid chars after valid' => ['12zz'],
+            'double prefix' => ['0x0x12'],
+        ];
+    }
+
+    /**
+     * testStrDecodeHexInvalid
+     *
+     * @dataProvider invalidHexDecodeHexProvider
+     * @param string $input
+     * @return void
+     */
+    public function testStrDecodeHexInvalid(string $input)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Str::decodeHex($input);
+    }
+
+    /**
      * testInvalidRlp
      * Try to figure out what invalidrlptest.json is.
      * 
