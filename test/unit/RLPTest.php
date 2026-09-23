@@ -155,6 +155,32 @@ class RLPTest extends TestCase
     }
 
     /**
+     * testEncodeLowBytes
+     * Bytes below 0x10 must be encoded as two hex digits.
+     *
+     * @return void
+     */
+    public function testEncodeLowBytes()
+    {
+        $rlp = $this->rlp;
+
+        $this->assertEquals("0f", $rlp->encode("\x0f"));
+        $this->assertEquals("820102", $rlp->encode("\x01\x02"));
+        $this->assertEquals("820000", $rlp->encode("\x00\x00"));
+        $this->assertEquals("83610a62", $rlp->encode("a\nb"));
+        $this->assertEquals("c3820102", $rlp->encode(["\x01\x02"]));
+
+        $this->assertEquals("0102", Str::encode("\x01\x02"));
+        $this->assertEquals("0102", Str::encode("\x01\x02", 'ascii'));
+
+        // every byte value 0x00-0xff: 256-byte payload => b9 0100
+        $allBytes = implode('', array_map('chr', range(0, 255)));
+        $encoded = $rlp->encode($allBytes);
+        $this->assertEquals("b90100" . bin2hex($allBytes), $encoded);
+        $this->assertEquals(bin2hex($allBytes), $rlp->decode("0x" . $encoded));
+    }
+
+    /**
      * testInvalidRlp
      * Try to figure out what invalidrlptest.json is.
      * 
