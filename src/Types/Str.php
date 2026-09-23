@@ -41,9 +41,6 @@ class Str
             if (!preg_match('/\A[a-f0-9]*\z/i', $input)) {
                 throw new InvalidArgumentException('Invalid hex string.');
             }
-            if (mb_strlen($input) > 2) {
-                $input = ltrim($input, '0');
-            }
             $output = $input;
 
             break;

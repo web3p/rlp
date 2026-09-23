@@ -250,6 +250,35 @@ class RLPTest extends TestCase
     }
 
     /**
+     * testHexKeepsLeadingZeros
+     * Hex strings are byte strings: leading zero bytes must be kept.
+     * See: https://github.com/web3p/rlp/issues/27
+     *
+     * @return void
+     */
+    public function testHexKeepsLeadingZeros()
+    {
+        $rlp = $this->rlp;
+        // 20-byte address with leading zero bytes: 0x80 + 20 = 0x94
+        $address = '0000000000000000000000000000000000000001';
+        // 32-byte hash with leading zero bytes: 0x80 + 32 = 0xa0
+        $hash = str_repeat('00', 31) . 'ab';
+
+        $this->assertEquals("94" . $address, $rlp->encode("0x" . $address));
+        $this->assertEquals("a0" . $hash, $rlp->encode("0x" . $hash));
+        $this->assertEquals($address, $rlp->decode("0x94" . $address));
+        $this->assertEquals("820001", $rlp->encode("0x0001"));
+        $this->assertEquals("820000", $rlp->encode("0x0000"));
+        $this->assertEquals("82007f", $rlp->encode("0x007f"));
+        $this->assertEquals("00", $rlp->encode("0x00"));
+        $this->assertEquals("0a", $rlp->encode("0x0a"));
+        // odd length is still padded to a whole byte
+        $this->assertEquals("82000a", $rlp->encode("0x00a"));
+        $this->assertEquals("c482000100", $rlp->encode(["0x0001", "0x00"]));
+        $this->assertEquals("0001", Str::encode("0x0001", 'hex'));
+    }
+
+    /**
      * invalidHexDecodeProvider
      *
      * @return array
