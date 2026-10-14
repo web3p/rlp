@@ -1,20 +1,20 @@
 # rlp
 
-PHP implementation of Ethereum Recursive Length Prefix (RLP) encoding and decoding.
+PHP impl of Ethereum Recursive Length Prefix (RLP) encode/decode.
 
 ## Repository architecture
 
-- `src/RLP.php`: public encode/decode API and recursive RLP parsing/encoding helpers.
-- `src/Types/Str.php`: string and hexadecimal conversion helpers.
+- `src/RLP.php`: public encode/decode API + recursive RLP parse/encode helpers.
+- `src/Types/Str.php`: string/hex conversion helpers.
 - `src/Types/Numeric.php`: numeric-to-hex conversion.
 - `test/unit/`: PHPUnit tests.
-- `phpunit.xml`: test configuration.
+- `phpunit.xml`: test config.
 
-This library is consumed by Ethereum-related code, so byte-level compatibility matters more than stylistic cleanup.
+Consumed by Ethereum code. Byte-level compat > stylistic cleanup.
 
 ## Development
 
-Install dependencies:
+Install deps:
 
     composer install
 
@@ -22,7 +22,7 @@ Run all tests:
 
     vendor/bin/phpunit
 
-Run a focused test:
+Run focused test:
 
     vendor/bin/phpunit --filter <test-name>
 
@@ -30,91 +30,91 @@ Validate Composer metadata:
 
     composer validate
 
-Syntax-check a changed PHP file:
+Syntax-check changed PHP file:
 
     php -l <file>
 
-Before assuming another command exists, inspect the repository configuration.
+Inspect repo config before assuming other command exists.
 
 ## Working principles
 
 Before modifying code:
 
-1. Read the relevant implementation and tests.
+1. Read relevant impl + tests.
 2. Establish intended RLP behavior before editing protocol-sensitive code.
-3. Prefer the smallest change that solves the selected issue.
-4. Preserve the public API and supported PHP versions unless explicitly changing them.
-5. Do not introduce dependencies without a clear need.
-6. Do not combine protocol fixes, dependency upgrades, and broad refactors.
-7. Do not modify unrelated files.
+3. Smallest change solving selected issue.
+4. Preserve public API + supported PHP versions unless explicitly changing.
+5. No new deps without clear need.
+6. No mixing protocol fixes, dep upgrades, broad refactors.
+7. No touching unrelated files.
 
-Do not speculate about code you have not inspected.
+No speculating about uninspected code.
 
 ## RLP correctness
 
-Treat encoding and decoding as protocol-sensitive. Check especially:
+Encode/decode = protocol-sensitive. Check especially:
 
-- the single-byte rule for values in `[0x00, 0x7f]`
-- empty byte strings and empty lists
-- short strings/lists (payload length 0-55)
-- long strings/lists (payload length >= 56)
+- single-byte rule for values in `[0x00, 0x7f]`
+- empty byte strings, empty lists
+- short strings/lists (payload len 0-55)
+- long strings/lists (payload len >= 56)
 - length-of-length encoding
 - canonical/minimal encodings
-- truncated or malformed payloads
+- truncated/malformed payloads
 - nested lists
 - trailing/remainder data
-- hex validation and `0x` handling
-- odd-length hex input and leading zeroes
-- zero, null, numeric strings, integers, and large numeric values
-- byte length versus character length
-- PHP integer/float precision
+- hex validation, `0x` handling
+- odd-length hex input, leading zeroes
+- zero, null, numeric strings, ints, large numerics
+- byte length vs char length
+- PHP int/float precision
 
-Do not simplify encoding code unless byte-for-byte equivalence is demonstrated by tests.
+No simplifying encoding code unless tests prove byte-for-byte equivalence.
 
-For correctness fixes, add deterministic regression vectors.
+Correctness fixes: add deterministic regression vectors.
 
 ## PHP compatibility
 
 `composer.json` currently supports PHP `^7.1 | ^8.0`.
 
-Do not introduce syntax unavailable on PHP 7.1 unless the supported PHP range is intentionally changed in a separate task. Consider public API compatibility before adding native parameter or return types.
+No syntax unavailable on PHP 7.1 unless supported range intentionally changed in separate task. Consider public API compat before adding native param/return types.
 
 ## Review workflow
 
-When asked to review:
+Review request:
 
-- inspect implementation and tests first
+- inspect impl + tests first
 - report findings before changing code
-- separate confirmed correctness issues from modernization/style opportunities
-- explain evidence for each finding
-- do not modify files unless explicitly asked
+- separate confirmed correctness issues from modernization/style
+- give evidence per finding
+- no file edits unless explicitly asked
 
-When asked to implement:
+Implement request:
 
-1. identify the selected finding
+1. identify selected finding
 2. inspect `git status`
-3. make only the required change
+3. only required change
 4. add/update tests
 5. run focused tests
-6. run the full suite when practical
-7. inspect the final diff
+6. run full suite when practical
+7. inspect final diff
 
 ## Git workflow
 
-When multiple findings exist, handle them one at a time unless explicitly requested otherwise.
+Multiple findings: one at a time unless told otherwise.
 
-For each selected issue:
+Per selected issue:
 
 1. Check `git status`; preserve unrelated user changes.
-2. Start from the appropriate base branch.
-3. Create a focused branch: `fix/`, `feat/`, `refactor/`, `test/`, or `chore/`.
+2. Start from right base branch.
+3. Create focused branch: `fix/`, `feat/`, `refactor/`, `test/`, or `chore/`.
 4. Implement only that issue.
 5. Add/update tests.
 6. Run relevant tests.
 7. Review `git diff`.
-8. Stage only task-related files.
-9. If explicitly asked, create one focused commit.
-10. Do not push unless explicitly requested.
-11. Stop before starting the next finding.
+8. Stage only task files.
+9. If explicitly asked, one focused commit.
+10. No push unless explicitly requested.
+11. Stop before next finding.
 
-Never use destructive Git commands without explicit approval. Never amend an existing commit unless explicitly requested. If another finding is required, explain the dependency first.
+No destructive Git commands without explicit approval. No amending existing commit unless explicitly requested. If another finding required, explain dependency first.
